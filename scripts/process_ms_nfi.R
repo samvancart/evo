@@ -15,6 +15,9 @@ dt[, forest_pixel := fifelse(!complete.cases(dt) | fert==32766 | fert==32767, F,
 # Calculate total number of trees
 dt[, n := fifelse(forest_pixel==T & dbh>0, ba/(pi*(dbh/200)^2), 0)] # In some cases pine, spruce and decid are 0 but n > 0
 
+# Remove unforested pixels
+dt <- dt[forest_pixel==T] # SITE IDS WON'T CORRESPOND TO ROWS IN multiInitVar
+
 # Height from dm to m
 dt[, h := h/10]
 
@@ -73,64 +76,31 @@ melted[,variable:=NULL]
 setorder(melted, cols="groupID")
 
 
-# melted <- melted[ba!=0]
-
-
-# melted[groupID==5]
-
-
-
-# MOVE TO SEPARATE FILE
-
-nSites <- length(unique(melted$groupID))
-
-nLayers <- (melted %>% count(groupID))$n
-nSpecies <- (melted %>% count(speciesID,groupID) %>% count(groupID))$n
-
-maxNlayers <- max(nLayers)
-
-
-# TOO SLOW
-
-multiInitVar <- array(0, dim=c(nSites,7,maxNlayers))
-multiInitVar[,6:7,NA] # Redundant?
-system.time(
-  for(i in 1:nSites){
-    filtered <- melted %>% filter(groupID==i)
-    multiInitVar[i,1,1:nLayers[i]] <- filtered$speciesID # vector of species ID taken from data
-    multiInitVar[i,2,1:nLayers[i]] <- filtered$age # age by tree from NFI
-    multiInitVar[i,3,1:nLayers[i]] <- filtered$h # height from NFI data
-    multiInitVar[i,4,1:nLayers[i]] <- filtered$dbh # dbh from NFI data
-    multiInitVar[i,5,1:nLayers[i]] <- filtered$ba # you need to calculate the basal area: pi*(dbh/200)^2*"multiplier Ntrees in data"
-    multiInitVar[i,6,1:nLayers[i]] <- NA
-  }
-)
-
-
-# TOO SLOW
-
-multiInitVar <- array(0, dim=c(1000,7,maxNlayers))
-multiInitVar[,6:7,NA] # Redundant?
-
-for(i in 1:1000){
-  multiInitVar[i,1,1:length(melted[groupID==i][[11]])] <- melted[groupID==i][[11]]
-  multiInitVar[i,2,1:length(melted[groupID==i][[3]])] <- melted[groupID==i][[3]]
-  multiInitVar[i,3,1:length(melted[groupID==i][[6]])] <- melted[groupID==i][[6]]
-  multiInitVar[i,4,1:length(melted[groupID==i][[5]])] <- melted[groupID==i][[5]]
-  multiInitVar[i,5,1:length(melted[groupID==i][[10]])] <- melted[groupID==i][[10]]
-  multiInitVar[i,6,1:length(melted[groupID==i][[11]])] <- NA
-}
-
-multiInitVar <- array(0, dim=c(1000,7))
-multiInitVarDt <- as.data.table(multiInitVar)
+melted <- melted[ba!=0]
 
 # Assign layerIDs
 melted[, layerID := seq(.N), by = groupID]
 
 
-melted[layerID == 1]
-melted[layerID == 2]
-melted[layerID == 3 & ba == 0]
+# csvFileName <- paste0("processedEvo.csv")
+# csv_path <- paste0(ms_nfi_csv_path,csvFileName)
+# 
+# fwrite(melted, csv_path,row.names = F)
+# 
+# 
+# rm(melted)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
