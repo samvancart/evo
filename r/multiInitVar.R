@@ -7,18 +7,19 @@
 #'
 #' @param dt data.table The table to create slice from
 #' @param keep_cols character A vector of column names in dt to include in the slice
+#' @param col6_init numeric Value to be repeated to fill column 6
+#' @param col7_init numeric Value to be repeated to fill column 7
 #'
 #' @return data.table The array slice
 #' @export
 #'
 #' @examples
-get_layer_slice <- function(dt, keep_cols = c("speciesID", "age", "h", "dbh", "ba")) {
+get_layer_slice <- function(dt, keep_cols = c("speciesID", "age", "h", "dbh", "ba"), col6_init = 0, col7_init = 0) {
   # Drop unnecessary cols
   dt <- dt[, ..keep_cols]
   
-  zeros <- rep(0,nrow(dt))
-  dt$V6 <- zeros
-  dt$V7 <- zeros
+  dt$V6 <-rep(col6_init, nrow(dt))
+  dt$V7 <- rep(col7_init, nrow(dt))
   
   return(dt)
 }

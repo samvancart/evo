@@ -6,8 +6,6 @@ csv_path <- paste0(ms_nfi_csv_path,csvFileName)
 
 dt <- fread(csv_path)
 
-# Assign group ids
-dt[, groupID := .GRP, by=list(x,y)]
 
 # Determine which rows represent forested pixels
 dt[, forest_pixel := fifelse(!complete.cases(dt) | fert==32766 | fert==32767, F, T)]
@@ -16,7 +14,10 @@ dt[, forest_pixel := fifelse(!complete.cases(dt) | fert==32766 | fert==32767, F,
 dt[, n := fifelse(forest_pixel==T & dbh>0, ba/(pi*(dbh/200)^2), 0)] # In some cases pine, spruce and decid are 0 but n > 0
 
 # Remove unforested pixels
-dt <- dt[forest_pixel==T] # SITE IDS WON'T CORRESPOND TO ROWS IN multiInitVar
+dt <- dt[forest_pixel==T]
+
+# Assign group ids
+dt[, groupID := .GRP, by=list(x,y)]
 
 # Height from dm to m
 dt[, h := h/10]
@@ -42,8 +43,10 @@ init_dbh <- initSeedling.def[2]
 init_ba <- initSeedling.def[3]
 
 
-# Init values when ba is 0
-dt[ba == 0, c("h", "dbh", "ba") := list(init_h, init_dbh, init_ba)]
+# Init values when ba == 0 | dbh==0 | h==0
+dt[ba == 0 | dbh==0 | h==0, c("h", "dbh", "ba") := list(init_h, init_dbh, init_ba)]
+
+
 
 # Basal areas
 dt[, ba_pine := biomass_pine_share*ba]
