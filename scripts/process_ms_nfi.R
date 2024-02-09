@@ -19,6 +19,14 @@ dt <- dt[forest_pixel==T]
 # Assign group ids
 dt[, groupID := .GRP, by=list(x,y)]
 
+## Add climate IDs
+# csvFileName <- "evoClimIDs.csv"
+# csv_path <- paste0(ms_nfi_csv_path,csvFileName)
+# ids_dt <- fread(csv_path)
+# 
+# dt[, climID := ids_dt$climID]
+
+
 # Height from dm to m
 dt[, h := h/10]
 
@@ -55,10 +63,12 @@ dt[, ba_decid := biomass_decid_share*ba]
 
 
 # Columns to keep
-keep_cols <- c("x","y","age","fert","dbh","h","ba_pine","ba_spruce","ba_decid","groupID","forest_pixel","n")
+keep_cols <- c("x","y","age","fert","dbh","h","ba_pine","ba_spruce","ba_decid","groupID","forest_pixel","n","climID")
 
 # Drop unnecessary cols
 dt <- dt[, ..keep_cols]
+
+
 
 # Melt
 melted <- melt.data.table(dt, 
@@ -92,11 +102,6 @@ melted[, layerID := seq(.N), by = groupID]
 # 
 # 
 # rm(melted)
-
-
-
-
-
 
 
 
