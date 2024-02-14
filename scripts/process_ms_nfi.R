@@ -23,7 +23,7 @@ dt[, c("maakuntaID", "segID") := groupID]
 dt[, regName := "ls"]
 
 # Landclass
-dt[, landclass := 1]
+dt[, c("landclass", "N") := 1]
 
 # Wbuffer
 dt[, Wbuffer := 0]
@@ -38,6 +38,7 @@ dt[, regID := 9]
 csvFileName <- "evoClimIDs.csv"
 csv_path <- paste0(ms_nfi_csv_path,csvFileName)
 ids_dt <- fread(csv_path)
+
 
 # Assign CurrClimIDs
 dt[, CurrClimID := ids_dt$climID]
@@ -66,7 +67,7 @@ dt[ba == 0 | dbh==0 | h==0, c("h", "dbh", "ba") := list(init_h, init_dbh, init_b
 
 # Columns to keep
 keep_cols <- 
-  c("segID", "regName", "maakuntaID", "ba", "age", "dbh", "pine", 
+  c("segID", "regName", "maakuntaID", "N", "ba", "age", "dbh", "pine", 
     "spruce", "decid", "fert", "h", "minpeat", "landclass", "regID", 
     "climID", "cons", "Wbuffer", "CurrClimID",  "pseudoptyp")
 
@@ -78,6 +79,10 @@ dt <- dt[, ..keep_cols]
 # csvFileName <- "processedEvoMaakuntaFormat.csv"
 # csv_path <- paste0(ms_nfi_csv_path,csvFileName)
 # fwrite(dt, csv_path, row.names = F)
+# # Write rdata
+# rdataFileName <- "processedEvoMs.rdata"
+# rdata_path <- paste0(ms_nfi_rdata_path, rdataFileName)
+# save(dt, file = rdata_path)
 
 # # CHECK ALL REQUIRED COLUMNS EXIST
 # cols <- which((colnames(data.all.muni) %in% colnames(dt))==F)

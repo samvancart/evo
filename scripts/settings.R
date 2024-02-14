@@ -28,6 +28,7 @@ library(R.utils)
 
 # forest data
 ms_nfi_csv_path <- paste0("data/ms_nfi/csv/")
+ms_nfi_rdata_path <- paste0("data/ms_nfi/rdata/")
 ms_nfi_sf_path <- paste0("data/ms_nfi/shape_files/")
 
 # climate data
