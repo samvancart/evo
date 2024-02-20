@@ -2,9 +2,9 @@ source("scripts/settings.R")
 source("./r/multiInitVar.R")
 
 
-
+csv_folderPath <- forest_csvs[forestDataID]
 csvFileName <- "processedEvo.csv"
-csv_path <- paste0(ms_nfi_csv_path,csvFileName)
+csv_path <- paste0(csv_folderPath, csvFileName)
 
 dt <- fread(csv_path)
 

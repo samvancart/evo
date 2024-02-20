@@ -1,8 +1,12 @@
 source("scripts/settings.R")
 
+# Csv
+csv_folderPath <- forest_csvs[forestDataID]
 csvFileName <- "procEvo.csv"
-csv_path <- paste0(ms_nfi_csv_path,csvFileName)
+csv_path <- paste0(csv_folderPath, csvFileName)
 
+# Rdata
+rdata_folderPath <- forest_rdatas[forestDataID]
 
 dt <- fread(csv_path)
 
@@ -11,7 +15,7 @@ dt <- fread(csv_path)
 dt[, forest_pixel := fifelse(!complete.cases(dt) | fert==32766 | fert==32767, F, T)]
 
 # Remove unforested pixels
-dt <- dt[forest_pixel==T]
+dt <- dt[forest_pixel==T] # DON'T FILTER MS THAT ARE IN METSA!
 
 # Assign group ids
 dt[, groupID := .GRP, by=list(x,y)]
@@ -36,7 +40,7 @@ dt[, regID := 9]
 
 # Load climate IDs
 csvFileName <- "evoClimIDs.csv"
-csv_path <- paste0(ms_nfi_csv_path,csvFileName)
+csv_path <- paste0(csv_folderPath, csvFileName)
 ids_dt <- fread(csv_path)
 
 
@@ -77,11 +81,13 @@ dt <- dt[, ..keep_cols]
 
 # # Write csv
 # csvFileName <- "processedEvoMaakuntaFormat.csv"
-# csv_path <- paste0(ms_nfi_csv_path,csvFileName)
+# csv_path <- paste0(csv_folderPath,csvFileName)
 # fwrite(dt, csv_path, row.names = F)
 # # Write rdata
 # rdataFileName <- "processedEvoMs.rdata"
-# rdata_path <- paste0(ms_nfi_rdata_path, rdataFileName)
+
+## CHECK PATH!!!
+# rdata_path <- paste0(rdata_folderPath, rdataFileName)
 # save(dt, file = rdata_path)
 
 # # CHECK ALL REQUIRED COLUMNS EXIST

@@ -24,14 +24,26 @@ library(geoTS)
 library(parallelly)
 library(R.utils)
 
+# IDs
+forestDataID <- 2
 
-
-# forest data
+# Forest data
+## Ms
 ms_nfi_csv_path <- paste0("data/ms_nfi/csv/")
 ms_nfi_rdata_path <- paste0("data/ms_nfi/rdata/")
 ms_nfi_sf_path <- paste0("data/ms_nfi/shape_files/")
 
-# climate data
+## Metsa
+metsa_csv_path <- paste0("data/metsa/csv/")
+metsa_rdata_path <- paste0("data/metsa/rdata/")
+metsa_sf_path <- paste0("data/metsa/shape_files/")
+
+# Forest data path vectors
+forest_csvs <- c(metsa_csv_path, ms_nfi_csv_path)
+forest_rdatas <- c(metsa_rdata_path, ms_nfi_rdata_path)
+forest_sfs <- c(metsa_sf_path, ms_nfi_sf_path)
+
+# Climate data
 climate_csv_path <- paste0("data/climate/csv/")
 climate_sf_path <- paste0("data/climate/shape_files/")
 
