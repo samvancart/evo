@@ -1,4 +1,5 @@
 source("scripts/settings.R")
+source("r/utils.R")
 
 # Multisources
 multisources_data_path <- paste0("C:/Users/samu/Documents/yucatrote/r/finland_multisources/data/rdata/2019/m4")
@@ -6,7 +7,8 @@ filename_rdata <- "dt.rdata"
 path_rdata <- paste0(multisources_data_path, "/", filename_rdata)
 
 # Metsa
-csvFileName <- "processedEvo.csv"
+# csvFileName <- "processedEvo.csv"
+csvFileName <- "processedEvoMaakuntaFormatWithCoords.csv"
 csv_path <- paste0(metsa_csv_path,csvFileName)
 
 # Load data
@@ -14,11 +16,11 @@ dt <- fread(path_rdata)
 metsa_dt <- fread(csv_path)
 
 # Filter unique
-metsa_dt <- metsa_dt[, metsa_dt[!duplicated(metsa_dt$groupID)]]
+# metsa_dt <- metsa_dt[, metsa_dt[!duplicated(metsa_dt$groupID)]]
 
 
 # Rename columns
-colnames(dt) <- c("x","y","biomass_spruce","biomass_bl","biomass_pine","age","fert","dbh","h","ba")
+colnames(dt) <- c("x","y","spruce","decid","pine","age","fert","dbh","h","ba")
 
 # Bounds for initial clip
 max_x <- max(metsa_dt$x)
@@ -40,7 +42,6 @@ inter_sf <- st_intersection(ms_sf, metsa_sf)
 # sf_path <- paste0(forest_sfs[forestDataID],"evo_coord_points/evoCoordPointsMS.shp")
 # st_write(inter_sf,sf_path)
 
-# length(unique(inter_sf$geometry))
 
 # Cast to dt
 inter_dt <- data.table(st_coordinates(st_cast(inter_sf$geometry, "POINT")))
@@ -49,7 +50,40 @@ colnames(inter_dt) <- c("x","y")
 # Filter
 filtered <- filtered[inter_dt, on=.(x,y)]
 
+# Remove tables
+rm(inter_dt, inter_sf, metsa_sf, ms_sf)
+gc()
 
-fileName <- paste0("procEvo.csv")
-csv_path <- paste0(ms_nfi_csv_path, fileName)
-fwrite(filtered, csv_path, row.names = F)
+# Test coords for equality 
+setequal(filtered[,c(1:2)], metsa_dt[,c(1:2)])
+
+# Bind columns from metsa
+col_indexes <- which(!colnames(metsa_dt) %in% colnames(filtered))
+evoFormat_dt <- cbind(filtered, metsa_dt[, ..col_indexes])
+
+# Set initSeedling values
+evoFormat_dt <- set_initSeedling_values(evoFormat_dt)
+
+# Columns to keep
+keep_cols <- 
+  c("segID", "regName", "maakuntaID", "N", "ba", "age", "dbh", "pine", 
+    "spruce", "decid", "fert", "h", "minpeat", "landclass", "regID", 
+    "climID", "cons", "Wbuffer", "CurrClimID",  "pseudoptyp")
+
+# Drop unnecessary cols
+evoFormat_dt <- evoFormat_dt[, ..keep_cols]
+
+
+
+
+
+# fileName <- paste0("processedEvoMaakuntaFormat.csv")
+# csv_path <- paste0(ms_nfi_csv_path, fileName)
+# fwrite(filtered, csv_path, row.names = F)
+
+
+
+
+
+
+

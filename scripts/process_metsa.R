@@ -1,4 +1,6 @@
 source("scripts/settings.R")
+source("r/utils.R")
+
 
 # Csv
 csv_folderPath <- forest_csvs[forestDataID]
@@ -8,8 +10,8 @@ csv_path <- paste0(csv_folderPath, csvFileName)
 # Rdata
 rdata_folderPath <- forest_rdatas[forestDataID]
 
+# Load
 dt <- fread(csv_path)
-
 
 # Determine which rows represent forested pixels
 dt[, forest_pixel := fifelse(!complete.cases(dt) | fert==32766 | fert==32767, F, T)]
@@ -52,22 +54,9 @@ id <- which(colnames(dt)=="id")
 colnames(dt)[id] <- "climID"
 
 
-# Convert h, dbh and ba to double
-dt$h <- as.double(dt$h)
-dt$dbh <- as.double(dt$dbh)
-dt$ba <- as.double(dt$ba)
-
-# Init values
-init_h <- initSeedling.def[1]
-init_dbh <- initSeedling.def[2]
-init_ba <- initSeedling.def[3]
-
 # Init values when ba == 0 | dbh==0 | h==0
-dt[ba == 0 | dbh==0 | h==0, c("h", "dbh", "ba") := list(init_h, init_dbh, init_ba)]
+dt <- set_initSeedling_values(dt)
 
-
-# Columns to keep
-# keep_cols <- c("x","y","age","fert","dbh","h","ba_pine","ba_spruce","ba_decid","groupID","forest_pixel","n","currClimID")
 
 # Columns to keep
 keep_cols <- 
