@@ -47,7 +47,7 @@ inter_sf <- st_intersection(ms_sf, metsa_sf)
 inter_dt <- data.table(st_coordinates(st_cast(inter_sf$geometry, "POINT")))
 colnames(inter_dt) <- c("x","y")
 
-# Filter
+# Filter out coords that aren't in intersection clip
 filtered <- filtered[inter_dt, on=.(x,y)]
 
 # Remove tables
@@ -71,8 +71,7 @@ keep_cols <-
     "climID", "cons", "Wbuffer", "CurrClimID",  "pseudoptyp")
 
 # Drop unnecessary cols
-evoFormat_dt <- evoFormat_dt[, ..keep_cols]
-
+dt <- evoFormat_dt[, ..keep_cols]
 
 
 
@@ -82,8 +81,12 @@ evoFormat_dt <- evoFormat_dt[, ..keep_cols]
 # fwrite(filtered, csv_path, row.names = F)
 
 
-
-
+# # Rdata
+# rdata_folderPath <- forest_rdatas[2]
+# rdataFileName <- "processedEvoMs.rdata"
+# ## CHECK PATH!!!
+# rdata_path <- paste0(rdata_folderPath, rdataFileName)
+# save(dt, file = rdata_path)
 
 
 

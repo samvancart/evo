@@ -3,7 +3,7 @@ source("r/utils.R")
 
 
 # Csv
-csv_folderPath <- forest_csvs[forestDataID]
+csv_folderPath <- forest_csvs[forestDataID] # Make sure forestDataID equals metsa
 csvFileName <- "procEvo.csv"
 csv_path <- paste0(csv_folderPath, csvFileName)
 

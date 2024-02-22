@@ -62,6 +62,47 @@ split_dt_equal_chunks <- function(dt, max_chunks) {
 
 
 
+#' Join two shape files (with the same crs) by nearest feature using the sf package. The shape files should contain 1 variable column.
+#'
+#' @param sf_path_1 sf Path to shape file for which to find nearest features
+#' @param sf_path_2 sf Path to shape file from which to find nearest features
+#' @param columnNames character A vector that contains the 2 column names for the returned table 
+#'
+#' @return data.table Table with 2 columns: The first column contains the original values of sf file 1. 
+#' The second column contains the nearest feature found in sf file 2 for the value in the first column.
+#' @export
+#'
+#' @examples
+get_joined_sfs_by_nearest_feature_dt <- function(sf_path_1, sf_path_2, columnNames = c("groupID", "climID")) {
+  # Load sf files
+  sf1 <- st_read(sf_path_1)
+  sf2 <- st_read(sf_path_2)
+  
+  # Check sf1 length
+  if(length(sf1)!=2) {
+    stop("Shape file 1 length not 2! Table should contain 1 variable column.")
+  }
+  
+  # Check sf2 length
+  if(length(sf2)!=2) {
+    stop("Shape file 2 length not 2! Table should contain 1 variable column.")
+  }
+  
+  # Nearest neighbour climateIDs
+  joined <- st_join(sf1, sf2, join = st_nearest_feature)
+  
+  # Cast to data table
+  dt <- as.data.table(joined)
+  
+  # Remove geometry column
+  dt[, "geometry":=NULL]
+  
+  # Change column names
+  colnames(dt) <- columnNames
+  
+  return(dt)
+}
+
 
 
 
