@@ -23,6 +23,7 @@ library(stars)
 library(geoTS)
 library(parallelly)
 library(R.utils)
+library(snow)
 
 # IDs
 forestDataID <- 1
@@ -38,10 +39,15 @@ metsa_csv_path <- paste0("data/metsa/csv/")
 metsa_rdata_path <- paste0("data/metsa/rdata/")
 metsa_sf_path <- paste0("data/metsa/shape_files/")
 
+## Rs
+rs_csv_path <- paste0("data/rs/csv/")
+rs_rdata_path <- paste0("data/rs/rdata/")
+rs_sf_path <- paste0("data/rs/shape_files/")
+
 # Forest data path vectors
-forest_csvs <- c(metsa_csv_path, ms_nfi_csv_path)
-forest_rdatas <- c(metsa_rdata_path, ms_nfi_rdata_path)
-forest_sfs <- c(metsa_sf_path, ms_nfi_sf_path)
+forest_csvs <- c(metsa_csv_path, ms_nfi_csv_path, rs_csv_path)
+forest_rdatas <- c(metsa_rdata_path, ms_nfi_rdata_path, rs_rdata_path)
+forest_sfs <- c(metsa_sf_path, ms_nfi_sf_path, rs_sf_path)
 
 # Climate data
 climate_csv_path <- paste0("data/climate/csv/")

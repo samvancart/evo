@@ -75,7 +75,6 @@ dt <- evoFormat_dt[, ..keep_cols]
 
 
 
-
 # fileName <- paste0("processedEvoMaakuntaFormat.csv")
 # csv_path <- paste0(ms_nfi_csv_path, fileName)
 # fwrite(filtered, csv_path, row.names = F)
@@ -83,10 +82,10 @@ dt <- evoFormat_dt[, ..keep_cols]
 
 # # Rdata
 # rdata_folderPath <- forest_rdatas[2]
-# rdataFileName <- "processedEvoMs.rdata"
-# ## CHECK PATH!!!
+# rdataFileName <- "processedEvoMsList.rdata"
+## CHECK PATH!!!
 # rdata_path <- paste0(rdata_folderPath, rdataFileName)
 # save(dt, file = rdata_path)
-
+# load(rdata_path)
 
 

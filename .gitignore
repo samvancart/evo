@@ -8,5 +8,5 @@
 # Files
 data/
 code.txt
-scripts/test.R
-scripts/runModTestSamu.R
+scripts/test*.R
+scripts/runModTest*.R
