@@ -28,16 +28,16 @@ library(snow)
 # IDs
 forestDataID <- 1
 
+## Metsa
+metsa_csv_path <- paste0("data/metsa/csv/")
+metsa_rdata_path <- paste0("data/metsa/rdata/")
+metsa_sf_path <- paste0("data/metsa/shape_files/")
+
 # Forest data
 ## Ms
 ms_nfi_csv_path <- paste0("data/ms_nfi/csv/")
 ms_nfi_rdata_path <- paste0("data/ms_nfi/rdata/")
 ms_nfi_sf_path <- paste0("data/ms_nfi/shape_files/")
-
-## Metsa
-metsa_csv_path <- paste0("data/metsa/csv/")
-metsa_rdata_path <- paste0("data/metsa/rdata/")
-metsa_sf_path <- paste0("data/metsa/shape_files/")
 
 ## Rs
 rs_csv_path <- paste0("data/rs/csv/")
