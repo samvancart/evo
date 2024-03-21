@@ -65,8 +65,16 @@ keep_cols <-
 rs_dt_maakunta <- rs_dt_maakunta_coords[, ..keep_cols]
 
 
+list.files(rs_csv_path)
+rs_dt <- fread(paste0(rs_csv_path,list.files(rs_csv_path)[2]))
 
-dt <- fread(paste0(rs_csv_path,list.files(rs_csv_path)[1]))
+
+
+
+
+
+
+
 
 
 
