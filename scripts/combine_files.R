@@ -14,13 +14,13 @@ source("r/utils.R")
 #' @export
 #'
 #' @examples
-combine_outputDT_files <- function(dt_files, load_path, groupID, save_path="") {
+combine_outputDT_files <- function(dt_files, load_path, groupID, save_path="", filename_fun, filename_fun_args=list()) {
   print(groupID)
   files_list <- dt_files[id==groupID]$filename
   s <- files_list[1]
   v <- unique(dt_files[id==groupID]$v)
-  print(v)
-  filename <- get_outputDT_filename(s=s, sep="_")
+  
+  filename <- do.call(filename_fun, c(list(s=s), filename_fun_args))
   
   dt <- rbindlist(sapply(files_list, function(x) mget(load(paste0(load_path,"/", x))), simplify = TRUE))
   assign(v,dt)
@@ -36,25 +36,19 @@ combine_outputDT_files <- function(dt_files, load_path, groupID, save_path="") {
 }
 
 
-#' Get all filenames in a directory and store in a data table with an ID columnn specifying which group a filename belongs to
+#' Convert a split filename into data table columns and add an ID columnn specifying which group a filename belongs to
 #'
-#' @param path character Path to files
-#' @param cols character Vector of column names for the created table. Number of items should match the number of items in
-#' the list that is created when a filename is split by a separator
+#' @param split_files list List of filenames that have been split by a separator
+#' @param files character Vector of the filenames
+#' @param cols character Vector of column names for the created table. Number of names should match the number of names in
+#' an item in the split_files list
 #' @param group_vars character Vector of the column names that the grouping will be done by
 #'
 #' @return data.table The table
 #' @export
 #'
 #' @examples
-get_outputDT_files_as_dt <- function(path, cols = c("v","hs","hi","clim","name","num"), group_vars = c("v","hs")) {
-  files <- list.files(path)
-  split_files <- strsplit(files,"_")
-  split_files <- lapply(split_files, function(x) if(length(x)>6){
-    x <- modify_split_string(x,"_",1,2)
-  } else {
-    x <- x
-  })
+get_outputDT_files_as_dt <- function(split_files, files, cols = c("v","hs","hi","clim","name","num"), group_vars = c("v","hs")) {
   dt_files <- as.data.table(t(setDT(split_files)))
   colnames(dt_files) <- cols
   dt_files <- cbind(dt_files,filename=files)
@@ -88,20 +82,29 @@ get_outputDT_filename <- function(s, sep="", name="all.rdata") {
 #'
 #' @param s character The string to modify
 #' @param sep character Separator to split string by
-#' @param start integer Starting index in split string 
-#' @param stop integer Stop index in split string
+#' @param start integer Where to start combining from
+#' @param stop integer Where to stop combining
+#' @param new character If set then the start index is used to replace the item with that index with new.
+#' If start > length of list then the item is added
 #'
 #' @return list The modified string split into a list
 #' @export
 #'
 #' @examples
-modify_split_string <- function(s, sep="", start, stop) {
+modify_split_string <- function(s, sep="", start, stop=NA, new = NULL) {
   split_s <- unlist(strsplit(s, sep), recursive = F)
-  new_s <- paste0(stringr::str_c(split_s[start:stop],collapse = sep))
-  begin <- split_s[1:start-1]
-  end <- split_s[(stop+1:(length(split_s)-stop))]
-   
-  new_split_s <- paste0(stringr::str_c(c(begin,new_s,end)))
+  
+  if(is.null(new)) {
+    middle <- paste0(stringr::str_c(split_s[start:stop],collapse = sep))
+    begin <- split_s[1:start-1]
+    end <- split_s[(stop+1:(length(split_s)-stop))]
+    
+    new_split_s <- paste0(stringr::str_c(c(begin,middle,end)))
+  } else {
+    split_s[start] <- new
+    new_split_s <- stringr::str_c(split_s, collapse = sep)
+  }
+
   
   return(new_split_s)
 }
@@ -110,11 +113,30 @@ modify_split_string <- function(s, sep="", start, stop) {
 
 
 # Load path
-path <- paste0("data/test/combine_files_test/forCent1")
+path <- paste0("data/test/combine_files_test/forCent1_out")
 base_path <- paste0("data/test/combine_files_test")
 
+
+files <- list.files(path)
+# files <- list.files(path,pattern = "Hc")
+
+# Split filenames
+split_files <- strsplit(files,"_")
+
+# Modify filename if the variable name contains separator "_" 
+split_files <- lapply(split_files, function(x) if(length(x)>6){
+  x <- modify_split_string(x,"_",1,2)
+} else {
+  x <- x
+})
+
+
+
 # Get filenames as dt
-dt_files <- get_outputDT_files_as_dt(path = path, group_vars = c("v","hs","clim"))
+dt_files <- get_outputDT_files_as_dt(split_files = split_files, files = files,
+                                     cols = c("v","hs","hi","clim","name","num"), 
+                                     group_vars = c("v","hs","clim"))
+
 
 # Get grouping ids
 ids <- unique(dt_files$id)
@@ -123,13 +145,18 @@ ids <- unique(dt_files$id)
 save_path <- paste0(base_path,"/combined")
 # save_path=""
 
+# Function to determine filename for combined data
+filename_fun <- get_outputDT_filename
+
+# Arguments to filename function
+filename_fun_args <- list(sep="_",name="all.rdata")
+
 # Arguments to combine function
-args <- list(dt_files=dt_files, load_path=path, save_path=save_path)
+args <- list(dt_files=dt_files, load_path=path, save_path=save_path, 
+             filename_fun=filename_fun, filename_fun_args=filename_fun_args)
 
 # Apply combine and save function to all ids
 invisible(lapply(ids, function(x) do.call(combine_outputDT_files, c(list(groupID=x), args))))
-
-
 
 
 
