@@ -24,6 +24,7 @@ library(geoTS)
 library(parallelly)
 library(R.utils)
 library(snow)
+library(stringr)
 
 # IDs
 forestDataID <- 1
