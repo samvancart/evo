@@ -33,7 +33,6 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
     build_filename_from_list(x, name_idxs = name_idxs, ext_idx = ext_idx, sep=old_sep))
   
   v <- unique(dt_id[[name_var]])
-  print(v)
   
   filename_list <- modify_string_in_list(as.list(dt_id[1,]), mod_idx, mod_str)
   filename <- build_filename_from_list(filename_list, name_idxs = name_idxs, ext_idx = ext_idx, sep=new_sep)
