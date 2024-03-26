@@ -38,8 +38,8 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
   filename_list <- modify_string_in_list(as.list(dt_id[1,]), mod_idx, mod_str)
   filename <- build_filename_from_list(filename_list, name_idxs = name_idxs, ext_idx = ext_idx, sep=new_sep)
   
-  
-  dt <- rbindlist(sapply(files_list, function(x) mget(load(paste0(load_path,"/", x))), simplify = TRUE))
+
+  dt <- load_binaries_and_combine_as_dt(files_list = files_list, load_path = load_path)
   assign(v,dt)
   
   if(save_path != "") {
@@ -51,6 +51,38 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
   rm(dt)
   
 }
+
+#' Check if a file is empty
+#'
+#' @param path character Path to the file
+#'
+#' @return logical True if file is not empty, otherwise False
+#' @export
+#'
+#' @examples
+check_empty_file <- function(path) {
+  if(file.size(path) > 0) {
+    return(T)
+  }
+  return(F)
+}
+
+#' Load a list of binary files and combine as data table
+#'
+#' @param files_list character Vector of files to combine
+#' @param load_path character Path from which to load files
+#'
+#' @return data.table Combined files
+#' @export
+#'
+#' @examples
+load_binaries_and_combine_as_dt <- function(files_list, load_path) {
+  dt <- rbindlist(sapply(files_list, function(x) if(check_empty_file(paste0(load_path,"/", x))) {
+    mget(load(paste0(load_path, "/", x)))
+  }, simplify = TRUE))
+  return(dt)
+}
+
 
 #' Splits strings to a fixed length data table using stringr library. Reverses the string first using the stringi library 
 #' so that variables that are of length 2 (eg. Hc_base) after splitting will remain the same

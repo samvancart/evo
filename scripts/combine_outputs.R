@@ -27,7 +27,7 @@ file_pattern <- ".rdata"
 dirs <- list.dirs(base_path)
 pattern <- "forCent1$"
 paths <- dirs[(stringr::str_detect(dirs, pattern = pattern))==T]
-# path <- paths[1]
+paths <- paths[3]
 
 
 
@@ -35,5 +35,15 @@ invisible(mclapply(paths, function(x) run_combine_outs(
   path=x, file_pattern = file_pattern, cols = cols,
   group_vars = group_vars, old_sep = old_sep, new_sep = new_sep, name_var = cols[1], test = T)
   , mc.cores = 1))
+
+
+
+
+
+
+
+
+
+
 
 
