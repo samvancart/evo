@@ -35,7 +35,7 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
   v <- unique(dt_id[[name_var]])
   
   filename_list <- modify_string_in_list(as.list(dt_id[1,]), mod_idx, mod_str)
-  filename <- build_filename_from_list(filename_list, name_idxs = name_idxs, ext_idx = ext_idx, sep=new_sep)
+  filename <- build_filename_from_list(filename_list, name_idxs = name_idxs, ext_idx = ext_idx, sep=new_sep, ext = ext)
   
 
   dt <- load_binaries_and_combine_as_dt(files_list = files_list, load_path = load_path)
@@ -66,7 +66,7 @@ check_empty_file <- function(path) {
   return(F)
 }
 
-#' Load a list of binary files and combine as data table
+#' Load a list of non-empty binary files and combine as data table
 #'
 #' @param files_list character Vector of files to combine
 #' @param load_path character Path from which to load files
@@ -189,7 +189,8 @@ run_combine_outs <- function(path, file_pattern=".rdata", cols, group_vars, sep_
   # Arguments to combine function
   args <- list(dt_files=dt_files, load_path=path, 
                save_path=save_path, old_sep = old_sep, new_sep = new_sep, 
-               mod_idx = mod_idx, mod_str = mod_str, name_var = name_var)
+               mod_idx = mod_idx, mod_str = mod_str, name_var = name_var,
+               name_idxs = name_idxs, ext_idx = ext_idx, ext = ext)
   
   # Apply combine and save function to all ids
   invisible(lapply(ids, function(x) do.call(combine_outputDT_files, c(list(groupID=x), args))))

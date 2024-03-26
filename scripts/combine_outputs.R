@@ -2,7 +2,7 @@ source("scripts/settings.R")
 source("r/combine_files.R")
 
 
-
+# options(encoding = "UTF-8")
 
 base_path <- "data/test/combine_files_test"
 
@@ -11,7 +11,8 @@ new_sep <- "-"
 # sep_pattern <- "[_.]"
 # mod_idx <- 6
 # mod_str <- "all"
-# save_dir <- "combined"
+save_dir <- "combined"
+ext <- NULL
 
 # Column names for dt_files
 cols = c("v","hs","hi","clim","name","num","ext")
@@ -23,18 +24,23 @@ group_vars = c("v","hs","clim")
 file_pattern <- ".rdata"
 
 
-
 dirs <- list.dirs(base_path)
 pattern <- "forCent1$"
 paths <- dirs[(stringr::str_detect(dirs, pattern = pattern))==T]
 paths <- paths[3]
 
+run_combine_outs_args <- list(file_pattern = file_pattern, cols = cols,
+                              group_vars = group_vars, old_sep = old_sep, 
+                              new_sep = new_sep, name_var = cols[1], save_dir = save_dir, ext = ext, 
+                              test = F)
 
+t <- system.time(
+  invisible(mclapply(paths, function(x) 
+    do.call(run_combine_outs, c(list(path = x), run_combine_outs_args))
+    , mc.cores = 1))
+)
 
-invisible(mclapply(paths, function(x) run_combine_outs(
-  path=x, file_pattern = file_pattern, cols = cols,
-  group_vars = group_vars, old_sep = old_sep, new_sep = new_sep, name_var = cols[1], test = T)
-  , mc.cores = 1))
+print(t)
 
 
 
