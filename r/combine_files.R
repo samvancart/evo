@@ -38,7 +38,7 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
   filename_list <- modify_string_in_list(as.list(dt_id[1,]), mod_idx, mod_str)
   filename <- build_filename_from_list(filename_list, name_idxs = name_idxs, ext_idx = ext_idx, sep=new_sep, ext = ext)
   
-  files_list <- files_list[unlist(lapply(files_list, function(x) check_empty_file(paste0(paths, "/", x))))]
+  files_list <- files_list[unlist(lapply(files_list, function(x) check_empty_file(paste0(load_path, "/", x))))]
   
   dt <- load_binaries_and_combine_as_dt(files_list = files_list, load_path = load_path)
   assign(v,dt)
