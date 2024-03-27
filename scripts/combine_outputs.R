@@ -29,10 +29,13 @@ pattern <- "forCent1$"
 paths <- dirs[(stringr::str_detect(dirs, pattern = pattern))==T]
 paths <- paths[3]
 
+
+combine_outputDT_files_args <- list(ext = ext, new_sep = new_sep, test = F)
+
 run_combine_outs_args <- list(file_pattern = file_pattern, cols = cols,
-                              group_vars = group_vars, old_sep = old_sep, 
-                              new_sep = new_sep, name_var = cols[1], save_dir = save_dir, ext = ext, 
-                              test = F)
+                              group_vars = group_vars, save_dir = save_dir, 
+                              kwargs = combine_outputDT_files_args)
+
 
 t <- system.time(
   invisible(mclapply(paths, function(x) 
@@ -41,6 +44,30 @@ t <- system.time(
 )
 
 print(t)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

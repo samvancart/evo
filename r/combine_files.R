@@ -18,6 +18,7 @@
 #' @param name_idxs integer Vector of indexes in the list of a split filename to use for the new filename
 #' @param ext_idx integer The index in the list of a split filename of the file extension
 #' @param ext character/NULL New file extension if desired
+#' @param test logical For testing. If False then no files will be saved but the save_path is printed
 #'
 #' @return 
 #' @export
@@ -26,7 +27,7 @@
 combine_outputDT_files <- function(dt_files, load_path, groupID, 
                                    save_path="", old_sep="_", new_sep="_",
                                    mod_idx = 6, mod_str = "all", name_var=c(1),
-                                   name_idxs = c(1:6), ext_idx = c(7), ext = NULL) {
+                                   name_idxs = c(1:6), ext_idx = c(7), ext = NULL, test = F) {
   print(groupID)
   dt_id <- dt_files[id==groupID]
   files_list <- apply(dt_id, 1, function(x) 
@@ -37,15 +38,18 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
   filename_list <- modify_string_in_list(as.list(dt_id[1,]), mod_idx, mod_str)
   filename <- build_filename_from_list(filename_list, name_idxs = name_idxs, ext_idx = ext_idx, sep=new_sep, ext = ext)
   
-
   dt <- load_binaries_and_combine_as_dt(files_list = files_list, load_path = load_path)
   assign(v,dt)
   
-  if(save_path != "") {
+  if(!test) {
     file <- paste0(save_path,"/", filename)
     dir.create(path = save_path, recursive = T, showWarnings = F)
     save(list=v, file=file)
     print(paste0("Saved file ", file))
+  } else {
+    file <- paste0(save_path,"/", filename)
+    print(paste0("Test, not saved!"))
+    print(paste0("Save path: ", file))
   }
   rm(dt)
   
@@ -152,25 +156,15 @@ modify_string_in_list <- function(lst, old_str_idx, new_str) {
 #' @param cols character Vector of column names for data table created from filenames
 #' @param group_vars character Vector of column names to group by
 #' @param sep_pattern character Separator(s) to split filenames by
-#' @param old_sep character The separator used in the original filenames
-#' @param new_sep character The separator to use in the new filenames
-#' @param name_var character
-#' @param mod_idx integer The index in the list of a split filename to modify
-#' @param mod_str character The string to replace the string in mod_idx
 #' @param save_dir character The directory name to save files into. It will be created in path.
-#' @param name_idxs integer Vector of indexes in the list of a split filename to use for the new filename
-#' @param ext_idx integer The index in the list of a split filename of the file extension
-#' @param ext character/NULL New file extension if desired
-#' @param test logical For testing. If False then no files will be saved
+#' @param kwargs list Keyword arguments (arguments to combine function)
 #'
 #' @return
 #' @export
 #'
 #' @examples
 run_combine_outs <- function(path, file_pattern=".rdata", cols, group_vars, sep_pattern = "[_.]", 
-                             old_sep = "_", new_sep = "-", name_var=c(1),
-                             mod_idx = 6, mod_str = "all", save_dir = "combined", 
-                             name_idxs = c(1:6), ext_idx = c(7), ext = NULL, test = F) {
+                             save_dir = "combined", kwargs = list()) {
   
   # Get files by extension as pattern to exclude directories
   files <- list.files(path, pattern = file_pattern, recursive = F)
@@ -183,14 +177,12 @@ run_combine_outs <- function(path, file_pattern=".rdata", cols, group_vars, sep_
   
   # Where to save files
   save_path <- paste0(path,"/", save_dir)
-  save_path <- ifelse(test, "", save_path)
+  # save_path <- ifelse(test, "", save_path)
   
   
   # Arguments to combine function
-  args <- list(dt_files=dt_files, load_path=path, 
-               save_path=save_path, old_sep = old_sep, new_sep = new_sep, 
-               mod_idx = mod_idx, mod_str = mod_str, name_var = name_var,
-               name_idxs = name_idxs, ext_idx = ext_idx, ext = ext)
+  args <- c(list(dt_files=dt_files, load_path=path, save_path=save_path), kwargs)
+  
   
   # Apply combine and save function to all ids
   invisible(lapply(ids, function(x) do.call(combine_outputDT_files, c(list(groupID=x), args))))
