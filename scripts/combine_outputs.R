@@ -30,7 +30,7 @@ paths <- dirs[(stringr::str_detect(dirs, pattern = pattern))==T]
 paths <- paths[3]
 
 
-combine_outputDT_files_args <- list(ext = ext, new_sep = new_sep, test = F)
+combine_outputDT_files_args <- list(ext = ext, new_sep = new_sep, name_var = cols[1], test =T)
 
 run_combine_outs_args <- list(file_pattern = file_pattern, cols = cols,
                               group_vars = group_vars, save_dir = save_dir, 

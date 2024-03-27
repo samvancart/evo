@@ -49,6 +49,7 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
   } else {
     file <- paste0(save_path,"/", filename)
     print(paste0("Test, not saved!"))
+    print(paste0("Object name: ", v))
     print(paste0("Save path: ", file))
   }
   rm(dt)
@@ -177,8 +178,6 @@ run_combine_outs <- function(path, file_pattern=".rdata", cols, group_vars, sep_
   
   # Where to save files
   save_path <- paste0(path,"/", save_dir)
-  # save_path <- ifelse(test, "", save_path)
-  
   
   # Arguments to combine function
   args <- c(list(dt_files=dt_files, load_path=path, save_path=save_path), kwargs)
