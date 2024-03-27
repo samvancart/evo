@@ -38,6 +38,8 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
   filename_list <- modify_string_in_list(as.list(dt_id[1,]), mod_idx, mod_str)
   filename <- build_filename_from_list(filename_list, name_idxs = name_idxs, ext_idx = ext_idx, sep=new_sep, ext = ext)
   
+  files_list <- files_list[unlist(lapply(files_list, function(x) check_empty_file(paste0(paths, "/", x))))]
+  
   dt <- load_binaries_and_combine_as_dt(files_list = files_list, load_path = load_path)
   assign(v,dt)
   
@@ -68,6 +70,7 @@ check_empty_file <- function(path) {
   if(file.size(path) > 0) {
     return(T)
   }
+  print(paste0("Found empty file in ", path))
   return(F)
 }
 
@@ -81,9 +84,7 @@ check_empty_file <- function(path) {
 #'
 #' @examples
 load_binaries_and_combine_as_dt <- function(files_list, load_path) {
-  dt <- rbindlist(sapply(files_list, function(x) if(check_empty_file(paste0(load_path,"/", x))) {
-    mget(load(paste0(load_path, "/", x)))
-  }, simplify = TRUE))
+  dt <- rbindlist(sapply(files_list, function(x) mget(load(paste0(load_path, "/", x))) , simplify = TRUE))
   return(dt)
 }
 
