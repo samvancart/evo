@@ -64,6 +64,9 @@ evoFormat_dt <- cbind(filtered, metsa_dt[, ..col_indexes])
 # Set initSeedling values
 evoFormat_dt <- set_initSeedling_values(evoFormat_dt)
 
+# ms_coords_path <- paste0(ms_nfi_csv_path, "processedEvoMaakuntaFormatWithCoords.csv")
+# fwrite(evoFormat_dt,file=ms_coords_path)
+
 # Columns to keep
 keep_cols <- 
   c("segID", "regName", "maakuntaID", "N", "ba", "age", "dbh", "pine", 
