@@ -39,6 +39,7 @@ metsa_sf_path <- paste0("data/metsa/shape_files/")
 ms_nfi_csv_path <- paste0("data/ms_nfi/csv/")
 ms_nfi_rdata_path <- paste0("data/ms_nfi/rdata/")
 ms_nfi_sf_path <- paste0("data/ms_nfi/shape_files/")
+ms_nfi_output_path <- paste0("data/ms_nfi/outputs/")
 
 ## Rs
 rs_csv_path <- paste0("data/rs/csv/")
