@@ -40,10 +40,69 @@ run_get_gridIDs <- function(scale, base_sf, points_sf, base_dt, keep_cols = c("s
   
   keep_cols <- c(keep_cols, id_name)
   
-  dt_gridIDs <- join_scaled_gridIDs_dt_by_coords(ms_dt, inter_dt, keep_cols = keep_cols)
+  dt_gridIDs <- join_scaled_gridIDs_dt_by_coords(base_dt, inter_dt, keep_cols = keep_cols)
   
   return(dt_gridIDs)
   
+  
+}
+
+get_scale_dt_with_groupIDs <- function(scales, base_dt, points_sf, run_get_gridIDs_args, groupID_name = "segID") {
+  
+  args <- c(list(base_dt = base_dt, points_sf = points_sf), run_get_gridIDs_args)
+  
+  gridIDs <- lapply(scales, function(x) do.call(run_get_gridIDs, c(list(scale = x), args)))
+  groupIDs <- base_dt[, ..groupID_name]
+  
+  scale_dt <- do.call(cbind, c(groupIDs,gridIDs))
+  
+  return(scale_dt)
+}
+
+
+gridIDs_to_outputs <- function(out_files_path, files_list, scale_dt, by="segID") {
+  dts <- sapply(files_list, function(x) mget(load(paste0(out_files_path, "/", x))) , simplify = TRUE)
+  joined_dts <- lapply(dts, function(x) left_join(x, scale_dt, by = by))
+  
+  return(joined_dts)
+}
+
+
+get_gridID_outputs_by_ID <- function(scales, points_sf_paths, coords_paths,
+                                     run_get_gridIDs_args,
+                                     out_files_paths, out_files_patterns,
+                                     files_list_vector = c(1:length(out_files)),
+                                     ID = 1) {
+  
+  sf_path <- points_sf_paths[ID]
+  points_sf <- st_read(sf_path)
+  
+  
+  coords_path <-coords_paths[ID]
+  base_dt <- fread(coords_path)
+  
+  
+  scale_dt <- get_scale_dt_with_groupIDs(scales, base_dt = base_dt , points_sf = points_sf, 
+                                         run_get_gridIDs_args = run_get_gridIDs_args)
+  
+  
+  out_files_path <- out_files_paths[ID]
+  out_files_pattern <- out_files_patterns[ID]
+  out_files <- list.files(out_files_path, pattern = out_files_pattern)
+  files_list <- out_files[files_list_vector]
+  
+  joined_dts <- gridIDs_to_outputs(out_files_path, files_list, scale_dt)
+  
+  rm(points_sf, base_dt, scale_dt)
+  
+  return(joined_dts)
+  
+}
+
+add_melt_cols <- function(dts, data_from, var_name) {
+  dts <- lapply(dts, function(x) x[, ':=' (data_from = ..data_from, resolution = colnames(x)[1], var_name = var_name)])
+  
+  return(dts)
   
 }
 
@@ -59,68 +118,64 @@ scale <- base_scale * scale_multiplier
 scale_multipliers <- c(10,20,50,100)
 scales <- base_scale * scale_multipliers
 
-# scaled_grid_inter <- get_scaled_grid_as_sf(base_sf = base_area_sf, scale = scale)
-
-
+# Ms-nfi paths
 ms_sf_path <- paste0(ms_nfi_sf_path,"evo_coord_points/evoCoordPointsMS.shp")
-ms_sf <- st_read(ms_sf_path)
-
-
-# id_name <- paste0("gridID_", as.character(scale))
-# ms_inter_dt <- get_scaled_gridIDs_dt(grid_sf = scaled_grid_inter, points_sf = ms_sf, id_col_name = id_name)
-
-
 ms_coords_path <- paste0(ms_nfi_csv_path, "processedEvoMaakuntaFormatWithCoords.csv")
-ms_dt <- fread(ms_coords_path)
+ms_out_files_path <- paste0(ms_nfi_output_path,"combined/")
+out_pattern <- "NoHarv"
+
+# Path vectors
+points_sf_paths <- c(ms_sf_path)
+coords_paths <- c(ms_coords_path)
+out_files_paths <- c(ms_out_files_path)
+out_files_patterns <- c(rep(out_pattern,3))
+
+# Arguments
+run_get_gridIDs_args <- list(base_sf = base_area_sf,  keep_cols = c())
 
 
-# keep_cols <- c("segID", id_name)
-# ms_dt_gridIDs <- join_scaled_gridIDs_dt_by_coords(ms_dt, ms_inter_dt, keep_cols = keep_cols)
+# Get ms-nfi outputs with gridIDs attached
+ms_joined_dts <- get_gridID_outputs_by_ID(scales, points_sf_paths, coords_paths,
+                                       run_get_gridIDs_args, 
+                                       out_files_paths, out_files_patterns, ID = 1,
+                                       files_list_vector = c(8, 20, 21, 32))
 
-
-
-
-
-run_get_gridIDs_args <- list(base_sf = base_area_sf, points_sf = ms_sf, base_dt = ms_dt, keep_cols = c())
-
-gridIDs <- lapply(scales, function(x) do.call(run_get_gridIDs, c(list(scale = x), run_get_gridIDs_args)))
-segIDs <- ms_dt[,"segID"]
-
-scale_dt <- do.call(cbind, c(segIDs,gridIDs))
-
-
-out_files_path <- paste0(ms_nfi_output_path,"combined/")
-out_files <- list.files(out_files_path, pattern = "Base")
-files_list <- out_files[c(3, 11)]
-out_path <- paste0(out_files_path, out_files[11])
-
-
-dts <- sapply(files_list, function(x) mget(load(paste0(out_files_path, "/", x))) , simplify = TRUE)
-joined_dts <- lapply(dts, function(x) left_join(x, scale_dt, by = c("segID")))
-
-
+# Cols to aggregate
 cols <- c("per1","per2","per3")
-by_cols <-  colnames(scale_dt)
+
+# ID cols
+dt1 <- ms_joined_dts[[1]]
+keep_cols <- dt1[, !(names(dt1) %in% cols)]
+by_cols <- colnames(dt1[, ..keep_cols])
 
 
-dts_mean <- lapply(joined_dts, function(dt) 
+# Get means
+ms_dts_mean <- lapply(ms_joined_dts, function(dt) 
   lapply(by_cols, function(x) dt[, lapply(.SD, mean), .SDcols = cols, by = x]))
 
 
 
+# Get var names
+var_names <- unlist(lapply(names(ms_dts_mean), function(x) strsplit(x,"-")[[1]][1]))
+
+# Attach columns for melt
+ms_melt_cols <- lapply(seq_along(ms_dts_mean), function(x) add_melt_cols(ms_dts_mean[[x]], "ms_nfi", var_names[[x]]))
+
+# Rbind all tables
+ms_melt_all <- rbindlist(unlist(ms_melt_cols,recursive = F), use.names = F)
+
+# Melt all
+ms_melted <- melt.data.table(ms_melt_all, measure.vars = cols, id.vars = c("data_from", "resolution", "var_name"))
 
 
 
 
 
-# load(out_path)
-# h_dt <- left_join(H, scale_dt, by = c("segID"))
-# dts_mean <- lapply(by_cols, function(x) h_dt[, lapply(.SD, "mean"), .SDcols = cols, by = x])
-# dts_mean <- aggregate_dt_byIDcols(h_dt, by_cols = by_cols)
-# h_dt[, lapply(.SD, mean), .SDcols = cols, by = gridID_160]
+vals <- ms_melted[data_from=="ms_nfi" & var_name=="V" & variable=="per1"]
 
-
-
+p <- ggplot(vals, aes(x=resolution, y=value)) +
+  geom_boxplot()
+p
 
 
 
