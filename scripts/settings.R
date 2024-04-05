@@ -33,6 +33,7 @@ forestDataID <- 1
 metsa_csv_path <- paste0("data/metsa/csv/")
 metsa_rdata_path <- paste0("data/metsa/rdata/")
 metsa_sf_path <- paste0("data/metsa/shape_files/")
+metsa_output_path <-  paste0("data/metsa/outputs/")
 
 # Forest data
 ## Ms
@@ -45,6 +46,7 @@ ms_nfi_output_path <- paste0("data/ms_nfi/outputs/")
 rs_csv_path <- paste0("data/rs/csv/")
 rs_rdata_path <- paste0("data/rs/rdata/")
 rs_sf_path <- paste0("data/rs/shape_files/")
+rs_output_path <-  paste0("data/rs/outputs/")
 
 # Forest data path vectors
 forest_csvs <- c(metsa_csv_path, ms_nfi_csv_path, rs_csv_path)
