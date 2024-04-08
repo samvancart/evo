@@ -293,6 +293,7 @@ rs_joined_dts <- lapply(rs_joined_dts, function (x) x[, gridID_wholeArea := 1])
 
 ### ---------------- COLS AND BY_COLS ---------------- ###
 
+
 # Cols to aggregate
 cols <- c("per1","per2","per3")
 
@@ -307,6 +308,7 @@ by_cols <- colnames(dt1[, ..keep_cols])
 ### ---------------- AGGREGATE ---------------- ###
 
 # Get means
+
 ms_dts_mean <- lapply(ms_joined_dts, function(dt) 
   lapply(by_cols, function(x) dt[, lapply(.SD, mean), .SDcols = cols, by = x]))
 
@@ -315,6 +317,8 @@ metsa_dts_mean <- lapply(metsa_joined_dts, function(dt)
 
 rs_dts_mean <- lapply(rs_joined_dts, function(dt) 
   lapply(by_cols, function(x) dt[, lapply(.SD, mean), .SDcols = cols, by = x]))
+
+
 
 ### ---------------- MELT ---------------- ###
 
@@ -329,7 +333,7 @@ combined_melted <- rbind(ms_melted, metsa_melted, rs_melted)
 
 vals <- combined_melted[var_name=="V" & variable=="per1"]
 
-vals <- combined_melted[data_from == "rs" & var_name=="V" & variable=="per3"]
+# vals <- combined_melted[data_from == "rs" & var_name=="V" & variable=="per3"]
 
 
 p <- ggplot(vals, aes(x=resolution, y=value, fill=data_from)) +

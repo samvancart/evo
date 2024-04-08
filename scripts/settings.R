@@ -29,6 +29,9 @@ library(stringr)
 # IDs
 forestDataID <- 1
 
+# Data source names
+data_sources <- c("metsa", "ms_nfi", "rs")
+
 ## Metsa
 metsa_csv_path <- paste0("data/metsa/csv/")
 metsa_rdata_path <- paste0("data/metsa/rdata/")
@@ -61,8 +64,30 @@ currClim_file <- paste0("CurrClim_grid_coords_FMIdatabase.csv")
 currClim_path <- paste0(climate_csv_path, currClim_file)
 
 
+# Scale grids paths
+
+# Metsa paths
+metsa_sf_points_path <- paste0(metsa_sf_path, "evo_coord_points/evoCoordPoints.shp")
+metsa_coords_path <- paste0(metsa_csv_path, "processedEvoMaakuntaFormatWithCoords.csv")
+metsa_out_files_path <- paste0(metsa_output_path, "combined/")
 
 
+# Ms-nfi paths
+ms_sf_points_path <- paste0(ms_nfi_sf_path, "evo_coord_points/evoCoordPointsMS.shp")
+ms_coords_path <- paste0(ms_nfi_csv_path, "processedEvoMaakuntaFormatWithCoords.csv")
+ms_out_files_path <- paste0(ms_nfi_output_path, "combined/")
+
+
+# Rs paths
+rs_sf_points_path <- paste0(metsa_sf_path, "evo_coord_points/evoCoordPoints.shp") # USE METSA COORD POINTS BECAUSE OF NEAREST NEIGHBOUR
+rs_coords_path <- paste0(rs_csv_path, "processedEvoMaakuntaFormatWithMetsaCoords.csv")
+rs_out_files_path <- paste0(rs_output_path, "combined/")
+
+
+# Path vectors
+points_sf_paths <- c(metsa_sf_points_path, ms_sf_points_path, rs_sf_points_path)
+coords_paths <- c(metsa_coords_path, ms_coords_path, rs_coords_path)
+out_files_paths <- c(metsa_out_files_path, ms_out_files_path, rs_out_files_path)
 
 
 
