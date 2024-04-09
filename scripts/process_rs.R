@@ -1,6 +1,9 @@
 source("scripts/settings.R")
 source("r/utils.R")
 
+
+
+
 file <- "rs_intersect.csv"
 path <- paste0(rs_csv_path,file)
 dt <- fread(path)
@@ -11,7 +14,7 @@ dt <- dt[, ..keep_cols]
 # Remove NAs
 dt <- dt[complete.cases(dt)]
 
-# Calculate BA per h
+# Calculate ba per ha
 mod_cols <- c("sum_BA","sum_BA_pi","sum_BA_sp","sum_BA_bi","sum_BA_as")
 dt[, (mod_cols) := lapply(.SD, function(x) x*10000/(16*16)), .SDcols = mod_cols]
 
@@ -24,35 +27,31 @@ dt[, c("sum_BA_bi","sum_BA_as") := NULL]
 # Column names
 colnames(dt) <- c("x","y","h","dbh","ba","pine","spruce","decid")
 
+
 # To sf
 rs_sf <- st_as_sf(dt[, c("x","y")], coords = c("x","y"), crs="EPSG:3067")
 
 
-# Get metsa sf
-metsa_path_sf <- paste0(metsa_sf_path,"evo_coord_points")
-metsa_sf <- st_read(metsa_path_sf, layer = "evoCoordPoints")
+### ------------------ GROUP IDS ------------------ ### 
 
 
-# Nearest neighbours
-nearest_sf <- st_nearest_feature(rs_sf, metsa_sf)
+groupID_sf <- st_read("data/shape_files/scaled_grids/groupID_grid.shp")
+rs_inter_sf <- st_intersection(groupID_sf, rs_sf)
 
-
-# Add groupID based on nearest neighbours
-rs_sf$groupID <- nearest_sf
-
-
-# Cast to dt
-nearest_dt <- data.table(st_coordinates(st_cast(rs_sf, "POINT")))
-colnames(nearest_dt) <- c("x","y")
-nearest_dt$groupID <- rs_sf$groupID
-
+rs_id_dt <- sf_to_dt_with_coords(rs_inter_sf)
+colnames(rs_id_dt) <- c("segID", "x", "y")
 
 # Join groupIDs
-dt <- left_join(dt,nearest_dt,by=c("x","y"))
+dt <- left_join(dt, rs_id_dt, by=c("x","y"))
+
+### ------------------ END GROUP IDS ------------------ ### 
+
+
+
 
 
 # Get metsa
-metsa_dt_path <- paste0(metsa_csv_path,"processedEvoMaakuntaFormatWithCoords.csv")
+metsa_dt_path <- paste0(metsa_csv_path,"processedEvoMaakuntaFormatIDsFromGrid.csv")
 metsa_dt <- fread(metsa_dt_path)
 
 # Filter
@@ -65,7 +64,10 @@ filtered_metsa_dt <- metsa_dt[, !..cols]
 # filtered_metsa_dt$groupID <- filtered_metsa_dt$segID
 
 # Join metsa columns
-rs_dt_maakunta_coords <- left_join(dt,filtered_metsa_dt,c("groupID"))
+rs_dt_maakunta_coords <- left_join(dt,filtered_metsa_dt,c("segID"))
+
+# Remove NAs
+rs_dt_maakunta_coords <- rs_dt_maakunta_coords[complete.cases(rs_dt_maakunta_coords)]
 
 
 keep_cols <- 
@@ -76,7 +78,7 @@ keep_cols <-
 # Filter and reorder columns
 rs_dt_maakunta <- rs_dt_maakunta_coords[, ..keep_cols]
 
-# fwrite(rs_dt_maakunta, file = paste0(rs_csv_path, "processedEvoMaakuntaFormatBA.csv"))
+# fwrite(rs_dt_maakunta, file = paste0(rs_csv_path, "processedEvoMaakuntaFormatGridID.csv"))
 
 # dt <- rs_dt_maakunta
 # save(dt, file= paste0(rs_rdata_path,"processedEvoRs.rdata"))

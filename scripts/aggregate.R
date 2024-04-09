@@ -72,7 +72,7 @@ gc()
 
 
 
-vals <- combined_melted[var_name=="V" & variable=="per1"]
+vals <- combined_melted[var_name=="V" & variable=="per2"]
 
 # vals <- combined_melted[data_from == "rs" & var_name=="V" & variable=="per3"]
 

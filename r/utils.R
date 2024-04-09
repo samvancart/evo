@@ -104,7 +104,14 @@ get_joined_sfs_by_nearest_feature_dt <- function(sf_path_1, sf_path_2, columnNam
 }
 
 
-
+sf_to_dt_with_coords <- function(sf, new_coord_names = c("x", "y")) {
+  dt <- data.table(st_cast(sf))
+  dt_coords <- data.table(st_coordinates(st_cast(sf, "POINT")))
+  setnames(dt_coords, new = new_coord_names)
+  dt <- cbind(dt, dt_coords)
+  dt[, geometry := NULL]
+  return(dt)
+}
 
 
 

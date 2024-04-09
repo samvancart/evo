@@ -25,6 +25,7 @@ library(parallelly)
 library(R.utils)
 library(snow)
 library(stringr)
+library(raster)
 
 # IDs
 forestDataID <- 1
@@ -49,6 +50,7 @@ ms_nfi_output_path <- paste0("data/ms_nfi/outputs/")
 rs_csv_path <- paste0("data/rs/csv/")
 rs_rdata_path <- paste0("data/rs/rdata/")
 rs_sf_path <- paste0("data/rs/shape_files/")
+rs_raster_path <- paste0("data/rs/rasters/")
 rs_output_path <-  paste0("data/rs/outputs/")
 
 # Forest data path vectors
