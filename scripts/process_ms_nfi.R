@@ -8,7 +8,8 @@ path_rdata <- paste0(multisources_data_path, "/", filename_rdata)
 
 # Metsa
 # csvFileName <- "processedEvo.csv"
-csvFileName <- "processedEvoMaakuntaFormatWithCoords.csv"
+# csvFileName <- "processedEvoMaakuntaFormatWithCoords.csv"
+csvFileName <- "processedEvoMaakuntaFormatRsIDsWithCoords.csv"
 csv_path <- paste0(metsa_csv_path,csvFileName)
 
 # Load data
@@ -78,9 +79,9 @@ dt <- evoFormat_dt[, ..keep_cols]
 
 
 
-# fileName <- paste0("processedEvoMaakuntaFormat.csv")
+# fileName <- paste0("processedEvoMaakuntaFormatRsIDs.csv")
 # csv_path <- paste0(ms_nfi_csv_path, fileName)
-# fwrite(filtered, csv_path, row.names = F)
+# fwrite(dt, csv_path, row.names = F)
 
 
 # # Rdata

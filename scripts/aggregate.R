@@ -50,8 +50,6 @@ for(i in 1:length(data_sources)) {
 
 
 
-
-
 ### ---------------- MELT ---------------- ###
 
 
@@ -72,7 +70,19 @@ gc()
 
 
 
-vals <- combined_melted[var_name=="V" & variable=="per2"]
+
+rs_minus_ms <- combined_melted[, .(data_from = "rs-ms_nfi", value = (value[data_from == "rs"] - value[data_from == "ms_nfi"])), 
+         .(resolution, variable, var_name)]
+
+
+rs_minus_metsa <- combined_melted[, .(data_from = "rs-metsa", value = (value[data_from == "rs"] - value[data_from == "metsa"])), 
+          .(resolution, variable, var_name)]
+
+
+combined_melted <- rbind(combined_melted, rs_minus_ms, rs_minus_metsa)
+
+
+vals <- combined_melted[var_name=="D" & variable=="per1" & !data_from %in% c("metsa", "ms_nfi")]
 
 # vals <- combined_melted[data_from == "rs" & var_name=="V" & variable=="per3"]
 
@@ -80,6 +90,27 @@ vals <- combined_melted[var_name=="V" & variable=="per2"]
 p <- ggplot(vals, aes(x=resolution, y=value, fill=data_from)) +
   geom_boxplot()
 p
+
+
+
+
+
+# rs_metsa_D <- dts_mean_list[[3]][[1]][[5]][,c(2:4)] - dts_mean_list[[1]][[1]][[5]][,c(2:4)]
+# v <- combined_melted[var_name=="D" & resolution %in% c("gridID_1600") & data_from == "rs-metsa" & variable == "per1"]
+# 
+# 
+# setequal(rs_metsa_D$per1, v$value)
+
+
+
+
+
+
+
+
+
+
+
 
 
 

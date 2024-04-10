@@ -69,7 +69,6 @@ rs_dt_maakunta_coords <- left_join(dt,filtered_metsa_dt,c("segID"))
 # Remove NAs
 rs_dt_maakunta_coords <- rs_dt_maakunta_coords[complete.cases(rs_dt_maakunta_coords)]
 
-
 keep_cols <- 
   c("segID", "regName", "maakuntaID", "N", "ba", "age", "dbh", "pine", 
     "spruce", "decid", "fert", "h", "minpeat", "landclass", "regID", 
@@ -78,37 +77,30 @@ keep_cols <-
 # Filter and reorder columns
 rs_dt_maakunta <- rs_dt_maakunta_coords[, ..keep_cols]
 
+# filtered_metsa_dt <- left_join(rs_dt_maakunta[,1], metsa_dt, by = "segID")
+# setcolorder(filtered_metsa_dt, c(2,3,1,4:length(filtered_metsa_dt)))
+# fwrite(filtered_metsa_dt, file = paste0(metsa_csv_path, "processedEvoMaakuntaFormatRsIDsWithCoords.csv"))
+
+
 # fwrite(rs_dt_maakunta, file = paste0(rs_csv_path, "processedEvoMaakuntaFormatGridID.csv"))
 
 # dt <- rs_dt_maakunta
 # save(dt, file= paste0(rs_rdata_path,"processedEvoRs.rdata"))
 
-save()
 
-# D = ( x 2 − x 1 ) 2 + ( y 2 − y 1 ) 2
 
-# list.files(rs_csv_path)
-# rs_dt <- fread(paste0(rs_csv_path,list.files(rs_csv_path)[1]))
-# 
-# 
-# list.files(metsa_csv_path)
-# metsa_dt <- fread(paste0(metsa_csv_path,list.files(metsa_csv_path)[4]))
-# 
-# 
-# rs_dt[pine != 0]
-# 
-# rs_dt[segID==178]
-# metsa_dt[segID==178]
-# 
-# 
-# ba <- 0.1601719*10000/(16*16)
-# radius <- 22.37626/200
-# ba/(radius*radius)*pi
-# 
-# 
-# ba <- 24
-# radius <- 20/200
-# ba/(radius*radius)*pi
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

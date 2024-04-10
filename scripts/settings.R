@@ -69,20 +69,20 @@ currClim_path <- paste0(climate_csv_path, currClim_file)
 # Scale grids paths
 
 # Metsa paths
-metsa_sf_points_path <- paste0(metsa_sf_path, "evo_coord_points/evoCoordPoints.shp")
-metsa_coords_path <- paste0(metsa_csv_path, "processedEvoMaakuntaFormatWithCoords.csv")
+metsa_sf_points_path <- paste0(metsa_sf_path, "evo_coord_points/evoCoordPointsMetsaRsIDs.shp")
+metsa_coords_path <- paste0(metsa_csv_path, "processedEvoMaakuntaFormatRsIDsWithCoords.csv")
 metsa_out_files_path <- paste0(metsa_output_path, "combined/")
 
 
 # Ms-nfi paths
-ms_sf_points_path <- paste0(ms_nfi_sf_path, "evo_coord_points/evoCoordPointsMS.shp")
-ms_coords_path <- paste0(ms_nfi_csv_path, "processedEvoMaakuntaFormatWithCoords.csv")
+ms_sf_points_path <- paste0(ms_nfi_sf_path, "evo_coord_points/evoCoordPointsMsRsIDs.shp")
+ms_coords_path <- paste0(ms_nfi_csv_path, "processedEvoMaakuntaFormatRsIDsWithCoords.csv")
 ms_out_files_path <- paste0(ms_nfi_output_path, "combined/")
 
 
 # Rs paths
-rs_sf_points_path <- paste0(metsa_sf_path, "evo_coord_points/evoCoordPoints.shp") # USE METSA COORD POINTS BECAUSE OF NEAREST NEIGHBOUR
-rs_coords_path <- paste0(rs_csv_path, "processedEvoMaakuntaFormatWithMetsaCoords.csv")
+rs_sf_points_path <- paste0(rs_sf_path, "evo_coord_points/evoCoordPointsRsRsIDs.shp")
+rs_coords_path <- paste0(rs_csv_path, "processedEvoMaakuntaFormatRsIDsWithCoords.csv")
 rs_out_files_path <- paste0(rs_output_path, "combined/")
 
 

@@ -104,6 +104,15 @@ get_joined_sfs_by_nearest_feature_dt <- function(sf_path_1, sf_path_2, columnNam
 }
 
 
+#' Cast sf to data.table and remove geometry column but keep coordinates
+#'
+#' @param sf sf Shape file
+#' @param new_coord_names character New names for X and Y coordinate columns
+#'
+#' @return data.table The data table
+#' @export
+#'
+#' @examples
 sf_to_dt_with_coords <- function(sf, new_coord_names = c("x", "y")) {
   dt <- data.table(st_cast(sf))
   dt_coords <- data.table(st_coordinates(st_cast(sf, "POINT")))

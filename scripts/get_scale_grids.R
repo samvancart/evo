@@ -1,6 +1,7 @@
 source("scripts/settings.R")
 source("r/scale_grids.R")
 
+# scaleGridArgs <- c(3)
 
 # Get scaleGridsID from cmd args else 1
 if (length(commandArgs(trailingOnly=TRUE))>0) {
@@ -28,7 +29,8 @@ scales <- base_scale * scale_multipliers
 out_pattern <- "NoHarv"
 
 # Output variables to get
-files_list_vector = c(8, 20, 21, 32)
+files_list_vector = c(3, 8, 11, 20, 21, 32)
+# files_list_vector = c(3)
 
 # Arguments
 run_get_gridIDs_args <- list(base_sf = base_area_sf,  keep_cols = c())
@@ -70,7 +72,6 @@ joined_dts <- lapply(joined_dts, function (x) x[, gridID_wholeArea := 1])
 
 rm(points_sf, scale_dt, run_get_gridIDs_args, base_area_sf, base_dt)
 gc()
-
 
 
 

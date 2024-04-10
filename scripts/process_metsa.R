@@ -81,7 +81,7 @@ dt <- set_initSeedling_values(dt)
 
 # Columns to keep
 keep_cols <- 
-  c("segID", "regName", "maakuntaID", "N", "ba", "age", "dbh", "pine", 
+  c("x", "y", "segID", "regName", "maakuntaID", "N", "ba", "age", "dbh", "pine", 
     "spruce", "decid", "fert", "h", "minpeat", "landclass", "regID", 
     "climID", "cons", "Wbuffer", "CurrClimID",  "pseudoptyp")
 
@@ -91,7 +91,7 @@ dt <- dt[, ..keep_cols]
 
 
 # # Write csv
-# csvFileName <- "processedEvoMaakuntaFormatIDsFromGrid.csv"
+# csvFileName <- "processedEvoMaakuntaFormatIDsFromGridWithCoords.csv"
 # csv_path <- paste0(csv_folderPath,csvFileName)
 # fwrite(dt, csv_path, row.names = F)
 # # Write rdata
