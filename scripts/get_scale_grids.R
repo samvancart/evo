@@ -26,10 +26,10 @@ scale_multipliers <- c(10,20,50,100)
 scales <- base_scale * scale_multipliers
 
 # Output files pattern
-out_pattern <- "NoHarv"
+out_pattern <- "Base"
 
 # Output variables to get
-files_list_vector = c(3, 8, 11, 20, 21, 32)
+files_list_vector = c(2, 3, 8, 11, 20, 21, 32)
 # files_list_vector = c(3)
 
 # Arguments
