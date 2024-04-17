@@ -94,6 +94,9 @@ combined_melted$resolution <- factor(combined_melted$resolution, levels = unique
 # Variable names
 var_names <- unique(combined_melted$var_name)
 
+# Variable units
+var_units <- c("m2/h", "cm", "m3/h/y", "m", "kgC/h", "m3/h", "kgC/h")
+
 # Harvest scenario
 harScen <- out_pattern
 
@@ -107,21 +110,50 @@ add_plot_args <- " & !data_from %in% c('rs-metsa', 'rs-ms_nfi')"
 plot_args <- paste0(base_plot_args, add_plot_args)
 
 
-for(var in var_names) {
-  plot_file <- paste0(plot_pdf_path, var, "-", harScen, ".pdf")
-  pdf(plot_file, width = 16, height = 9)
-  
+
+get_period_boxplot_by_var <- function(var, var_unit) {
   vals <- combined_melted[eval(parse(text = plot_args))]
   
   p <- ggplot(vals, aes(x=resolution, y=value, fill=data_from)) +
     geom_boxplot() + 
-    labs(title = var, subtitle = harScen) +
+    labs(title = var, subtitle = harScen, y = var_unit) +
     theme(axis.text.x = element_text(size = 8)) +
-    facet_wrap(~ variable)
-  print(p)
-  dev.off()
-  print(paste0("Saved ", plot_file))
+    facet_wrap(~variable)
+  
+  return(p)
 }
+
+
+# Group variables for presentation
+var_names1 <- c("BA", "D", "H")
+var_units1 <- var_units[which(var_names %in% var_names1)]
+var_names2 <- c("V", "grossGrowth")
+var_units2 <- var_units[which(var_names %in% var_names2)]
+var_names3 <- c("soilC", "Wtot")
+var_units3 <- var_units[which(var_names %in% var_names3)]
+
+plots1 <- lapply(seq_along(var_names1), function(x) get_period_boxplot_by_var(var_names1[x], var_units1[x]))
+plots1
+
+grid.arrange(grobs = plots1, nrow=1)
+
+
+
+# for(var in var_names) {
+#   plot_file <- paste0(plot_pdf_path, var, "-", harScen, ".pdf")
+#   pdf(plot_file, width = 16, height = 9)
+# 
+#   vals <- combined_melted[eval(parse(text = plot_args))]
+# 
+#   p <- ggplot(vals, aes(x=resolution, y=value, fill=data_from)) +
+#     geom_boxplot() +
+#     labs(title = var, subtitle = harScen) +
+#     theme(axis.text.x = element_text(size = 8)) +
+#     facet_wrap(~ variable)
+#   print(p)
+#   dev.off()
+#   print(paste0("Saved ", plot_file))
+# }
 
 
 
