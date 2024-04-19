@@ -17,7 +17,7 @@ get_period_boxplot_by_var <- function(data, var, var_unit, plot_args, harScen) {
 
 get_plot_list <- function(var_names, var_units, args) {
   plots <- lapply(seq_along(var_names), 
-                  function(x) do.call(get_period_boxplot_by_var, c(var = var_names[x], var_unit = var_units[x], args)))
+                  function(x) do.call(get_period_boxplot_by_var, c(list(var = var_names[x], var_unit = var_units[x]), args)))
   return(plots)
 }
 
@@ -50,6 +50,29 @@ combined_melted_base$resolution <- factor(combined_melted_base$resolution, level
 combined_melted_noHarv$resolution <- factor(combined_melted_noHarv$resolution, levels = unique(combined_melted_noHarv$resolution))
 
 
+### -------------------------- ADD MS- -------------------------- ###
+
+
+ms_minus_rs <- combined_melted_base[, .(data_from = "ms_nfi-rs", value = (value[data_from == "ms_nfi"] - value[data_from == "rs"])), 
+                               .(resolution, variable, var_name)]
+
+ms_minus_metsa <- combined_melted_base[, .(data_from = "ms_nfi-metsa", value = (value[data_from == "ms_nfi"] - value[data_from == "metsa"])), 
+                                    .(resolution, variable, var_name)]
+
+# Rbind
+combined_melted_base <- rbind(combined_melted_base, ms_minus_rs, ms_minus_metsa)
+
+# Rm
+rm(ms_minus_rs, ms_minus_metsa)
+
+# Remove rs- rows
+combined_melted_base <- combined_melted_base[!data_from %in% c("rs-ms_nfi", "rs-metsa")]
+
+
+### -------------------------- END ADD MS- -------------------------- ###
+
+
+
 # Variable names
 var_names <- unique(combined_melted_base$var_name)
 
@@ -57,18 +80,19 @@ var_names <- unique(combined_melted_base$var_name)
 var_units <- c("m²/h", "cm", "m³/h/y", "m", "kgC/h", "m³/h", "kgC/h")
 
 # Harvest scenario
-# harScen <- out_pattern
+harScen <- out_pattern
 
 # Pdf path
-plot_pdf_path <- paste0("data/plots/meansByPeriod/")
+plot_pdf_path <- paste0("data/plots/meansByPeriodDiffsMs/")
 # plot_pdf_path <- paste0("data/plots/meansByPeriodDiffs/")
 
 # Png path
 png_path <- paste0("data/plots/gridPlots/")
 
 base_plot_args <- "var_name == var"
-add_plot_args <- " & !data_from %in% c('rs-metsa', 'rs-ms_nfi')"
+# add_plot_args <- " & !data_from %in% c('rs-metsa', 'rs-ms_nfi')"
 # add_plot_args <- " & !data_from %in% c('metsa', 'ms_nfi')"
+add_plot_args <- " & !data_from %in% c('metsa', 'ms_nfi', 'rs')"
 
 plot_args <- paste0(base_plot_args, add_plot_args)
 
@@ -135,11 +159,43 @@ ggsave_plot(filename3, plot3, ggsave_plot_args)
 
 
 
+### -------------------------- SD TEST -------------------------- ###
+
+
+standard_d <- combined_melted_base[, sd(value), by=c("data_from", "resolution", "var_name", "variable")]
+ggplot(standard_d[var_name=="BA" & variable=="per1" & !data_from %in% c('metsa', 'ms_nfi', 'rs', 'rs-metsa', 'rs-ms_nfi')]) +
+  geom_line(aes(x = as.numeric(resolution), y = V1, color = data_from))
+
+
+### -------------------------- END SD TEST -------------------------- ###
 
 
 
 
 
+
+
+### -------------------------- PLOT FACET WRAP RES -------------------------- ###
+
+var <- "V"
+base_plot_args <- "var_name == var"
+add_plot_args <- " & !data_from %in% c('metsa', 'ms_nfi', 'rs')"
+
+plot_args <- paste0(base_plot_args, add_plot_args)
+
+vals <- combined_melted_base[eval(parse(text = plot_args))]
+
+p <- ggplot(vals, aes(x=variable, y=value, fill=data_from)) +
+  geom_boxplot() +
+  labs(title = var, subtitle = harScen) +
+  theme(axis.text.x = element_text(size = 8)) +
+  facet_wrap(~ resolution)
+print(p)
+
+dev.off()
+
+
+### -------------------------- END PLOT FACET WRAP RES -------------------------- ###
 
 
 
@@ -148,6 +204,7 @@ ggsave_plot(filename3, plot3, ggsave_plot_args)
 #   pdf(plot_file, width = 16, height = 9)
 # 
 #   vals <- combined_melted[eval(parse(text = plot_args))]
+#   # vals <- combined_melted_base[eval(parse(text = plot_args))]
 # 
 #   p <- ggplot(vals, aes(x=resolution, y=value, fill=data_from)) +
 #     geom_boxplot() +
@@ -167,3 +224,16 @@ ggsave_plot(filename3, plot3, ggsave_plot_args)
 files <- paste0(getwd(), "/", plot_pdf_path, list.files(plot_pdf_path))
 shell("start chrome")
 invisible(lapply(files, function(x) shell(paste0("start chrome ", x))))
+
+
+
+
+
+
+
+
+
+
+
+
+
