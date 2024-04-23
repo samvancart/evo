@@ -1,5 +1,6 @@
 source("scripts/settings.R")
 source("r/scale_grids.R")
+source("r/utils.R")
 
 
 
@@ -69,21 +70,24 @@ rm(dt1, dts_mean, dts_mean_list, joined_dts, joined_dts_list, melted, melted_lis
 gc()
 
 
-
-
 # Differences
-rs_minus_ms <- combined_melted[, .(data_from = "rs-ms_nfi", value = (value[data_from == "rs"] - value[data_from == "ms_nfi"])), 
-         .(resolution, variable, var_name)]
+rs_minus_ms <- x_minus_y_dt_values(combined_melted, "rs", "ms_nfi")
+rs_minus_metsa <- x_minus_y_dt_values(combined_melted, "rs", "metsa")
 
+ms_minus_rs <- x_minus_y_dt_values(combined_melted, "ms_nfi", "rs")
+ms_minus_metsa <- x_minus_y_dt_values(combined_melted, "ms_nfi", "metsa")
 
-rs_minus_metsa <- combined_melted[, .(data_from = "rs-metsa", value = (value[data_from == "rs"] - value[data_from == "metsa"])), 
-          .(resolution, variable, var_name)]
+metsa_minus_rs <- x_minus_y_dt_values(combined_melted, "metsa", "rs")
+metsa_minus_ms <- x_minus_y_dt_values(combined_melted, "metsa", "ms_nfi")
+
 
 # Rbind
-combined_melted <- rbind(combined_melted, rs_minus_metsa, rs_minus_ms)
+combined_melted <- 
+  rbind(combined_melted, rs_minus_metsa, rs_minus_ms, ms_minus_rs, ms_minus_metsa, metsa_minus_rs, metsa_minus_ms)
 
 # Rm
-rm(rs_minus_metsa, rs_minus_ms)
+rm(rs_minus_metsa, rs_minus_ms, ms_minus_rs, ms_minus_metsa, metsa_minus_rs, metsa_minus_ms)
+gc()
 
 # Order resolution
 combined_melted$resolution <- factor(combined_melted$resolution, levels = unique(combined_melted$resolution))
@@ -96,8 +100,8 @@ levels(new_res)[2:length(levels(new_res))] <- unlist(lapply(grid_levels,
                                                             function(x) unlist(strsplit(x, "_"), recursive = F)[2]))
 combined_melted$resolution <- new_res
 
-
-
+# path <- paste0("data/csv/combined_melted_", out_pattern, ".csv")
+# fwrite(combined_melted, file = path)
 
 
 

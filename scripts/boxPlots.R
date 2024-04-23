@@ -1,35 +1,7 @@
 source("scripts/settings.R")
+source("r/plots.R")
 
 
-# Functions
-
-get_period_boxplot_by_var <- function(data, var, var_unit, plot_args, harScen) {
-  vals <- data[eval(parse(text = plot_args))]
-  
-  p <- ggplot(vals, aes(x=resolution, y=value, fill=data_from)) +
-    geom_boxplot() + 
-    labs(title = var, subtitle = harScen, y = var_unit, x = "Resolution m²") +
-    theme(axis.text.x = element_text(size = 8)) +
-    facet_wrap(~variable)
-  
-  return(p)
-}
-
-get_plot_list <- function(var_names, var_units, args) {
-  plots <- lapply(seq_along(var_names), 
-                  function(x) do.call(get_period_boxplot_by_var, c(list(var = var_names[x], var_unit = var_units[x]), args)))
-  return(plots)
-}
-
-get_png_filename <- function(var_names, sep="-"){
-  return(str_flatten(var_names, collapse = sep))
-}
-
-
-ggsave_plot <- function(filename, plot, args) {
-  do.call(ggsave, c(list(filename = filename, plot = plot), args))
-  print(paste0(filename, " saved in ", args$path))
-}
 
 
 
@@ -42,34 +14,12 @@ ggsave_plot <- function(filename, plot, args) {
 
 
 # Load melted tables
-combined_melted_base <- fread(paste0("data/csv/combined_melted_base.csv"))
-combined_melted_noHarv <- fread(paste0("data/csv/combined_melted_noHarv.csv"))
+combined_melted_base <- fread(paste0("data/csv/combined_melted_Base.csv"))
+combined_melted_noHarv <- fread(paste0("data/csv/combined_melted_NoHarv.csv"))
 
 # Resolution as factor
 combined_melted_base$resolution <- factor(combined_melted_base$resolution, levels = unique(combined_melted_base$resolution))
 combined_melted_noHarv$resolution <- factor(combined_melted_noHarv$resolution, levels = unique(combined_melted_noHarv$resolution))
-
-
-### -------------------------- ADD MS- -------------------------- ###
-
-
-ms_minus_rs <- combined_melted_base[, .(data_from = "ms_nfi-rs", value = (value[data_from == "ms_nfi"] - value[data_from == "rs"])), 
-                               .(resolution, variable, var_name)]
-
-ms_minus_metsa <- combined_melted_base[, .(data_from = "ms_nfi-metsa", value = (value[data_from == "ms_nfi"] - value[data_from == "metsa"])), 
-                                    .(resolution, variable, var_name)]
-
-# Rbind
-combined_melted_base <- rbind(combined_melted_base, ms_minus_rs, ms_minus_metsa)
-
-# Rm
-rm(ms_minus_rs, ms_minus_metsa)
-
-# Remove rs- rows
-combined_melted_base <- combined_melted_base[!data_from %in% c("rs-ms_nfi", "rs-metsa")]
-
-
-### -------------------------- END ADD MS- -------------------------- ###
 
 
 
@@ -80,7 +30,8 @@ var_names <- unique(combined_melted_base$var_name)
 var_units <- c("m²/h", "cm", "m³/h/y", "m", "kgC/h", "m³/h", "kgC/h")
 
 # Harvest scenario
-harScen <- out_pattern
+# harScen <- out_pattern
+harScen <- "Base"
 
 # Pdf path
 plot_pdf_path <- paste0("data/plots/meansByPeriodDiffsMs/")
@@ -109,14 +60,14 @@ var_names3 <- c("soilC", "Wtot")
 var_units3 <- var_units[which(var_names %in% var_names3)]
 
 # Base plots
-plots1_base <- get_plot_list(var_names1, var_units1, base_args)
-plots2_base <- get_plot_list(var_names2, var_units2, base_args)
-plots3_base <- get_plot_list(var_names3, var_units3, base_args)
+plots1_base <- get_plot_list(get_period_boxplot_by_var, var_names1, var_units1, base_args)
+plots2_base <- get_plot_list(get_period_boxplot_by_var, var_names2, var_units2, base_args)
+plots3_base <- get_plot_list(get_period_boxplot_by_var, var_names3, var_units3, base_args)
 
 # NoHarv plots
-plots1_noHarv <- get_plot_list(var_names1, var_units1, noHarv_args)
-plots2_noHarv <- get_plot_list(var_names2, var_units2, noHarv_args)
-plots3_noHarv <- get_plot_list(var_names3, var_units3, noHarv_args)
+plots1_noHarv <- get_plot_list(get_period_boxplot_by_var, var_names1, var_units1, noHarv_args)
+plots2_noHarv <- get_plot_list(get_period_boxplot_by_var, var_names2, var_units2, noHarv_args)
+plots3_noHarv <- get_plot_list(get_period_boxplot_by_var, var_names3, var_units3, noHarv_args)
 
 # Combine plots
 plots1 <- c()
@@ -177,13 +128,14 @@ ggplot(standard_d[var_name=="BA" & variable=="per1" & !data_from %in% c('metsa',
 
 ### -------------------------- PLOT FACET WRAP RES -------------------------- ###
 
-var <- "V"
+var <- "H"
 base_plot_args <- "var_name == var"
 add_plot_args <- " & !data_from %in% c('metsa', 'ms_nfi', 'rs')"
 
 plot_args <- paste0(base_plot_args, add_plot_args)
 
-vals <- combined_melted_base[eval(parse(text = plot_args))]
+# vals <- combined_melted_base[eval(parse(text = plot_args))]
+vals <- base[eval(parse(text = plot_args))]
 
 p <- ggplot(vals, aes(x=variable, y=value, fill=data_from)) +
   geom_boxplot() +
@@ -196,6 +148,57 @@ dev.off()
 
 
 ### -------------------------- END PLOT FACET WRAP RES -------------------------- ###
+
+
+### -------------------------- PLOT LINES -------------------------- ###
+
+
+
+base <- combined_melted_base[resolution==16]
+noHarv <- combined_melted_noHarv[resolution==16]
+
+# rm(combined_melted_base, combined_melted_noHarv)
+# gc()
+
+var <- "BA"
+base_plot_args <- "var_name == var"
+# add_plot_args <- " & !data_from %in% c('metsa', 'ms_nfi', 'rs')"
+add_plot_args <- " & data_from %in% c('metsa', 'ms_nfi', 'rs')"
+add_plot_args2 <- " & variable=='per1'"
+
+plot_args <- paste0(base_plot_args, add_plot_args)
+
+vals <- base[eval(parse(text = plot_args))]
+
+means <- vals[, mean(value), by=c("data_from", "resolution", "var_name", "variable")]
+
+
+p <- ggplot(means, aes(x=variable, y=V1, col=data_from, group = data_from)) +
+  geom_line() +
+  labs(title = var, subtitle = harScen) +
+  theme(axis.text.x = element_text(size = 8))
+  # facet_wrap(~ resolution)
+print(p)
+
+dev.off()
+
+
+
+
+### -------------------------- END PLOT LINES -------------------------- ###
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -224,12 +227,6 @@ dev.off()
 files <- paste0(getwd(), "/", plot_pdf_path, list.files(plot_pdf_path))
 shell("start chrome")
 invisible(lapply(files, function(x) shell(paste0("start chrome ", x))))
-
-
-
-
-
-
 
 
 

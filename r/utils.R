@@ -123,6 +123,24 @@ sf_to_dt_with_coords <- function(sf, new_coord_names = c("x", "y")) {
 }
 
 
+x_minus_y_dt_values <- function(dt, x, y) {
+  data_from_name <- paste0(x, "-", y)
+  x_minus_y <- dt[, .(data_from = data_from_name, value = (value[data_from == x] - value[data_from == y])), 
+                  .(resolution, variable, var_name)]
+  return(x_minus_y)
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
