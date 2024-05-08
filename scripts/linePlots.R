@@ -2,22 +2,24 @@ source("scripts/settings.R")
 source("r/plots.R")
 
 
-# Load melted tables
-combined_melted_base <- fread(paste0("data/csv/combined_melted_Base.csv"))
-combined_melted_noHarv <- fread(paste0("data/csv/combined_melted_NoHarv.csv"))
+# # Load melted tables
+# combined_melted_base <- fread(paste0("data/csv/combined_melted_Base.csv"))
+# combined_melted_noHarv <- fread(paste0("data/csv/combined_melted_NoHarv.csv"))
+# 
+# # Resolution as factor
+# combined_melted_base$resolution <- factor(combined_melted_base$resolution, levels = unique(combined_melted_base$resolution))
+# combined_melted_noHarv$resolution <- factor(combined_melted_noHarv$resolution, levels = unique(combined_melted_noHarv$resolution))
+# 
+# # Filter
+# base <- combined_melted_base[data_from %in% c("metsa", "ms_nfi", "rs") & resolution==16 & complete.cases(combined_melted_base)]
+# noHarv <- combined_melted_noHarv[data_from %in% c("metsa", "ms_nfi", "rs") & resolution==16 & complete.cases(combined_melted_noHarv)]
+# 
+# # Remove
+# rm(combined_melted_base, combined_melted_noHarv)
+# gc()
 
-# Resolution as factor
-combined_melted_base$resolution <- factor(combined_melted_base$resolution, levels = unique(combined_melted_base$resolution))
-combined_melted_noHarv$resolution <- factor(combined_melted_noHarv$resolution, levels = unique(combined_melted_noHarv$resolution))
-
-# Filter
-base <- combined_melted_base[data_from %in% c("metsa", "ms_nfi", "rs") & resolution==16 & complete.cases(combined_melted_base)]
-noHarv <- combined_melted_noHarv[data_from %in% c("metsa", "ms_nfi", "rs") & resolution==16 & complete.cases(combined_melted_noHarv)]
-
-# Remove
-rm(combined_melted_base, combined_melted_noHarv)
-gc()
-
+base <- fread(paste0("data/csv/base.csv"))
+noHarv <- fread(paste0("data/csv/noHarv.csv"))
 
 
 ### -------------------------- PLOT LINES -------------------------- ###
@@ -39,10 +41,9 @@ plot_args <- paste0(base_plot_args)
 
 # GET PLOT LISTS
 
-
 plots_base_means <- get_aggr_plots_list(dt = base, aggr_fun = "mean(value)",
-                                 harScen = "Base", plot_args = plot_args, 
-                                 fun = get_linePlot_by_var, var_names = var_names, var_units = var_units)
+                                        harScen = "Base", plot_args = plot_args, 
+                                        fun = get_linePlot_by_var, var_names = var_names, var_units = var_units)
 
 plots_base_sd <- get_aggr_plots_list(dt = base, aggr_fun = "sd(value)",
                                  harScen = "Base", plot_args = plot_args, 

@@ -51,7 +51,7 @@ get_aggr_dt <- function(dt, aggr_fun, by = c("data_from", "resolution", "var_nam
 
 
 
-get_aggr_plots_list <- function(dt, aggr_fun, by=c("data_from", "resolution", "var_name", "variable"), 
+get_aggr_plots_list <- function(dt, aggr_fun, by=c("data_from", "resolution", "var_name", "variable"),
                                 harScen, plot_args, fun, var_names, var_units) {
   aggr_dt <- get_aggr_dt(dt, aggr_fun)
   args <- list(data=aggr_dt, harScen=harScen, plot_args=plot_args)

@@ -1,3 +1,4 @@
+
 # Functions
 
 
@@ -67,12 +68,24 @@ combine_outputDT_files <- function(dt_files, load_path, groupID,
 #'
 #' @examples
 check_empty_file <- function(path) {
-  if(file.size(path) > 0) {
-    return(T)
-  }
-  print(paste0("Found empty file in ", path))
-  return(F)
+  tryCatch({
+    if (!file.exists(path)) {
+      stop(paste0("File ", path, " does not exist."))
+      
+      return(FALSE)
+    }
+    if (file.size(path) > 0) {
+      return(TRUE)
+    } else {
+      cat("Found empty file in", path, "\n")
+      return(FALSE)
+    }
+  }, error = function(e) {
+    cat("Error:", conditionMessage(e), "\n")
+    return(FALSE)
+  })
 }
+
 
 #' Load a list of non-empty binary files and combine as data table
 #'
@@ -174,6 +187,9 @@ run_combine_outs <- function(path, file_pattern=".rdata", cols, group_vars, sep_
   # Get filenames as dt
   dt_files <- get_fixed_len_dt(out_files = files, sep = sep_pattern, cols = cols, group_vars = group_vars)
   
+  # Remove rows with NAs or empty values
+  dt_files <- dt_files[!Reduce(`|`, lapply(dt_files, function(x) is.na(x) | x == ""))]
+  
   # Get grouping ids
   ids <- unique(dt_files$id)
   
@@ -182,7 +198,6 @@ run_combine_outs <- function(path, file_pattern=".rdata", cols, group_vars, sep_
   
   # Arguments to combine function
   args <- c(list(dt_files=dt_files, load_path=path, save_path=save_path), kwargs)
-  
   
   # Apply combine and save function to all ids
   invisible(lapply(ids, function(x) do.call(combine_outputDT_files, c(list(groupID=x), args))))
