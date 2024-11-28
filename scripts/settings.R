@@ -38,6 +38,7 @@ metsa_csv_path <- paste0("data/metsa/csv/")
 metsa_rdata_path <- paste0("data/metsa/rdata/")
 metsa_sf_path <- paste0("data/metsa/shape_files/")
 metsa_output_path <-  paste0("data/metsa/outputs/")
+metsa_input_file_path <- paste0("data/metsa/rdata/processedEvoMetsaRsIDs.rdata")
 
 # Forest data
 ## Ms
@@ -45,6 +46,7 @@ ms_nfi_csv_path <- paste0("data/ms_nfi/csv/")
 ms_nfi_rdata_path <- paste0("data/ms_nfi/rdata/")
 ms_nfi_sf_path <- paste0("data/ms_nfi/shape_files/")
 ms_nfi_output_path <- paste0("data/ms_nfi/outputs/")
+ms_nfi_input_file_path <- paste0("data/ms_nfi/rdata/processedEvoMsRsIDs.rdata")
 
 ## Rs
 rs_csv_path <- paste0("data/rs/csv/")
@@ -52,6 +54,7 @@ rs_rdata_path <- paste0("data/rs/rdata/")
 rs_sf_path <- paste0("data/rs/shape_files/")
 rs_raster_path <- paste0("data/rs/rasters/")
 rs_output_path <-  paste0("data/rs/outputs/")
+rs_input_file_path <- paste0("data/rs/rdata/processedEvoRsRsIDs.rdata")
 
 # Forest data path vectors
 forest_csvs <- c(metsa_csv_path, ms_nfi_csv_path, rs_csv_path)
@@ -90,7 +93,7 @@ rs_out_files_path <- paste0(rs_output_path, "combined/")
 points_sf_paths <- c(metsa_sf_points_path, ms_sf_points_path, rs_sf_points_path)
 coords_paths <- c(metsa_coords_path, ms_coords_path, rs_coords_path)
 out_files_paths <- c(metsa_out_files_path, ms_out_files_path, rs_out_files_path)
-
+input_file_paths <- c(metsa_input_file_path, ms_nfi_input_file_path, rs_input_file_path)
 
 
 
