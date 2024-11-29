@@ -1,3 +1,10 @@
+# This script is for creating new Evo area input data based on field data.
+# The original inputs (metsa, ms_nfi and rs) are filtered using the field data
+# sites. The rs tree data (ba, dbh, h, species proportions) are filled with the
+# corresponding values from the field data. The other values are left unchanged.
+# The result is a named list (metsa, ms_nfi, rs, fd) of data.tables containing 
+# the new inputs.
+
 source("scripts/settings.R")
 source("scripts/runModTestFunctions.R")
 
@@ -11,7 +18,7 @@ tab_all[variable=="ms", variable := "ms_nfi"]
 # Get all inputs in a named list
 dts <- setNames(lapply(input_file_paths, load_rdata_file), data_sources)
 
-# Filter based on lookup (tab_all)
+# Filter sites based on lookup (tab_all)
 filtered <- invisible(setNames(lapply(seq_along(data_sources), function(i) {
   name <- data_sources[i]
   tab_all_ids <- unique(tab_all[variable == name]$segID)
@@ -41,6 +48,43 @@ cols <- intersect(names(cast_fd_lookup), names(fd))
 fd[cast_fd_lookup, (cols) := mget(paste0("i.", cols)), on = "segID"]
 
 filtered$fd <- fd
+
+rm(dts, cast_fd_lookup, fd_lookup, fd_species, fd) # Remove
+gc()
+
+# # Save
+# save_path <- file.path(field_data_path, "processedEvoAll.rdata")
+# save(filtered, file = save_path)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

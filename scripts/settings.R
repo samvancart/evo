@@ -2,6 +2,7 @@
 ### Libraries ###
 
 library(data.table)
+library(checkmate)
 library(Rprebasso)
 library(ggplot2)
 library(reshape2)

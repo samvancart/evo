@@ -136,7 +136,48 @@ x_minus_y_dt_values <- function(dt, x, y) {
 
 
 
-
+#' Create TRAN Matrices from Prebas Climate Data
+#'
+#' This function creates a list of TRAN matrices from a given data.table containing climate data.
+#' The data should be climate data in prebas format with site and day columns included.
+#' Each matrix is generated based on the specified variables and a formula involving site and day columns.
+#'
+#' @param dt A data.table containing the climate data.
+#' @param tran_vars A character vector specifying the variables to be used for creating TRAN matrices.
+#' @param day_col A character string specifying the column name for day. Default is "day".
+#' @param site_col A character string specifying the column name for site. Default is "siteID".
+#'
+#' @return A named list of TRAN matrices. The names of the list are derived from \code{tran_vars} appended with "Tran".
+#' @import data.table
+#' @examples
+#' library(data.table)
+#' dt <- data.table(day = rep(1:5, each = 2), siteID = rep(1:2, 5), var1 = rnorm(10), var2 = rnorm(10))
+#' tran_vars <- c("var1", "var2")
+#' create_tran_from_prebas_clim(dt, tran_vars)
+#' 
+#' @export
+create_tran_from_prebas_clim <- function(dt, tran_vars = c("par", "tair", "vpd", "precip", "co2"),
+                                         day_col = "day", site_col = "siteID") {
+  
+  # Input validations
+  assert_data_table(dt)
+  assert_character(tran_vars, any.missing = FALSE, min.len = 1)
+  assert_string(day_col, min.chars = 1)
+  assert_string(site_col, min.chars = 1)
+  assert_names(colnames(dt), must.include = c(day_col, site_col))
+  assert_names(colnames(dt), must.include = tran_vars)
+  
+  # Create list of TRAN matrices
+  tran_matrices <- lapply(tran_vars, function(x) {
+    formula <- as.formula(paste(site_col, "~", day_col))
+    dcast_dt <- as.matrix(dcast(dt, formula, value.var = x))
+  })
+  
+  # Add names to list
+  names(tran_matrices) <- paste0(tran_vars, "Tran")
+  
+  return(tran_matrices)
+}
 
 
 
