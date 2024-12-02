@@ -186,3 +186,65 @@ create_tran_from_prebas_clim <- function(dt, tran_vars = c("par", "tair", "vpd",
 
 
 
+#' Sample Data.Table by Years
+#'
+#' This function samples a data.table by years and adjusts the sampled years to a new sequence 
+#' starting from a specified year. Original years in the new sequence are not sampled.
+#'
+#' @param dt A `data.table` object containing the data.
+#' @param n_years An integer specifying the number of years to sample.
+#' @param start_year An integer specifying the starting year for the new sequence.
+#' @param date_col_name A string specifying the name of the date column in `dt`. Defaults to "time".
+#' @param seed An optional integer seed for reproducibility. Defaults to `NULL`.
+#' @param ... Additional arguments to be passed to the `sample` function.
+#'
+#' @return A `data.table` object containing the sampled and adjusted data.
+#' 
+#' @examples
+#' \dontrun{
+#' library(data.table)
+#' dt <- data.table(time = as.POSIXct('2023-01-01') + 0:365*24*60*60, value = rnorm(366))
+#' sample_dt_by_years(dt, n_years = 5, start_year = 2020, date_col_name = "time", seed = 123)
+#' }
+#' 
+#' @import data.table
+#' @import checkmate
+#' @export
+sample_dt_by_years <- function(dt, n_years, start_year, date_col_name = "time", seed = NULL, ...) {
+  
+  # Validate inputs
+  assert_data_table(dt)
+  assert_int(n_years, lower = 1, upper = 150)
+  assert_integerish(start_year, lower = 0, upper = 9999)
+  assert_string(date_col_name)
+  assert(check_flag(seed), null.ok = TRUE)
+  
+  # Check if the date_col_name exists in dt
+  assert_names(names(dt), must.include = date_col_name)
+  
+  # Extract unique years from the date column
+  years <- unique(year(dt[[date_col_name]]))
+  
+  # Set seed for reproducibility
+  if (!is.null(seed)) set.seed(seed)
+  
+  # Sample years
+  sampled <- sample(x = years, size = n_years, replace = TRUE, ...)
+  new_years <- seq(from = start_year, length.out = n_years)
+  
+  # Check if any original years exist in new_years
+  old_years <- new_years %in% years
+  
+  # Generate the sampled data.table
+  samples_dt <- rbindlist(lapply(seq_along(sampled), function(i) {
+    if(old_years[i]) {
+      subset_dt <- dt[year(dt[[date_col_name]]) == new_years[i]]
+    } else {
+      subset_dt <- dt[year(dt[[date_col_name]]) == sampled[i]]  
+    }
+    year(subset_dt[[date_col_name]]) <- new_years[i] 
+    subset_dt 
+  }), use.names = TRUE, fill = TRUE)
+  
+  return(samples_dt)
+}
