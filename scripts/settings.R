@@ -27,6 +27,7 @@ library(R.utils)
 library(snow)
 library(stringr)
 library(raster)
+library(testthat)
 
 # IDs
 forestDataID <- 1

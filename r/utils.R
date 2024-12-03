@@ -289,6 +289,7 @@ sample_dt_by_years <- function(dt, n_years, start_year, date_col_name = "time", 
   
   # Extract unique years from the date column using helper function
   years <- extract_unique_years(dt, date_col_name)
+  if(length(years) == 1) years <- rep(years, 2) # Sample fun wants x >= 2
   
   # Set seed for reproducibility
   if (!is.null(seed)) set.seed(seed)
