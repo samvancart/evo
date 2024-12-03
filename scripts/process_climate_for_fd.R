@@ -16,11 +16,10 @@ fmi_lookup_dt <- load_rdata_file(file.path(climate_path, fmi_lookup_file))
 
 fmi_vars_dt[, c("tmax", "tmin") := NULL]
 
+
 # Sample to get future years
 samples_dt <- sample_dt_by_years(fmi_vars_dt, n_years = 70, start_year = 2024, seed = 13)
 samples_dt[, rday := seq_len(.N), by = id] # Assign rday
-
-
 
 
 # Field data

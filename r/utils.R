@@ -182,31 +182,96 @@ create_tran_from_prebas_clim <- function(dt, tran_vars = c("par", "tair", "vpd",
 
 
 
+#' Extract Unique Years from Date Column
+#'
+#' This helper function extracts unique years from a specified date column in a data.table.
+#' The date column can be of type Date or numeric.
+#'
+#' @param dt A `data.table` object containing the data.
+#' @param date_col_name A string specifying the name of the date column in `dt`. 
+#' The column must be of type Date or numeric.
+#'
+#' @return A vector of unique years.
+#' @examples
+#' \dontrun{
+#' dt <- data.table(time = as.Date('2023-01-01') + 0:365, value = rnorm(366))
+#' extract_unique_years(dt, "time")
+#' }
+#' @import data.table
+#' @export
+extract_unique_years <- function(dt, date_col_name) {
+  if (inherits(dt[[date_col_name]], "Date")) {
+    unique(year(dt[[date_col_name]]))
+  } else if (is.numeric(dt[[date_col_name]])) {
+    unique(dt[[date_col_name]])
+  } else {
+    stop("The date_col_name must be either a Date or numeric type column.")
+  }
+}
+
+
+
+
+#' Sample and Adjust Years in Data.Table
+#'
+#' This helper function samples data based on provided years and adjusts the sampled years to new years 
+#' in a specified date column. The date column can be of type Date or numeric.
+#'
+#' @param dt A `data.table` object containing the data.
+#' @param sampled_years A vector of sampled years.
+#' @param new_years A vector of new years for adjustment.
+#' @param date_col_name A string specifying the name of the date column in `dt`. 
+#' The column must be of type Date or numeric.
+#'
+#' @return A `data.table` object with adjusted years.
+#' @examples
+#' \dontrun{
+#' library(data.table)
+#' dt <- data.table(time = as.Date('2023-01-01') + 0:365, value = rnorm(366))
+#' sampled_years <- c(2023, 2024, 2025)
+#' new_years <- c(2021, 2022, 2023)
+#' sample_and_adjust_years(dt, sampled_years, new_years, "time")
+#' }
+#' @import data.table
+#' @export
+sample_and_adjust_years <- function(dt, sampled_years, new_years, date_col_name) {
+  rbindlist(lapply(seq_along(sampled_years), function(i) {
+    if (inherits(dt[[date_col_name]], "Date")) {
+      subset_dt <- dt[year(dt[[date_col_name]]) == sampled_years[i]]
+      year(subset_dt[[date_col_name]]) <- new_years[i]
+    } else if (is.numeric(dt[[date_col_name]])) {
+      subset_dt <- dt[dt[[date_col_name]] == sampled_years[i]]
+      subset_dt[[date_col_name]] <- new_years[i]
+    } else {
+      stop("The date_col_name must be either a Date or numeric type column.")
+    }
+    subset_dt
+  }), use.names = TRUE, fill = TRUE)
+}
 
 
 
 
 #' Sample Data.Table by Years
 #'
-#' This function samples a data.table by years and adjusts the sampled years to a new sequence 
-#' starting from a specified year. Original years in the new sequence are not sampled.
+#' This function samples a data.table by years and adjusts the sampled years to 
+#' a new sequence starting from a specified year.
 #'
 #' @param dt A `data.table` object containing the data.
 #' @param n_years An integer specifying the number of years to sample.
 #' @param start_year An integer specifying the starting year for the new sequence.
 #' @param date_col_name A string specifying the name of the date column in `dt`. Defaults to "time".
+#' 
 #' @param seed An optional integer seed for reproducibility. Defaults to `NULL`.
 #' @param ... Additional arguments to be passed to the `sample` function.
 #'
 #' @return A `data.table` object containing the sampled and adjusted data.
-#' 
 #' @examples
 #' \dontrun{
 #' library(data.table)
 #' dt <- data.table(time = as.POSIXct('2023-01-01') + 0:365*24*60*60, value = rnorm(366))
 #' sample_dt_by_years(dt, n_years = 5, start_year = 2020, date_col_name = "time", seed = 123)
 #' }
-#' 
 #' @import data.table
 #' @import checkmate
 #' @export
@@ -222,29 +287,46 @@ sample_dt_by_years <- function(dt, n_years, start_year, date_col_name = "time", 
   # Check if the date_col_name exists in dt
   assert_names(names(dt), must.include = date_col_name)
   
-  # Extract unique years from the date column
-  years <- unique(year(dt[[date_col_name]]))
+  # Extract unique years from the date column using helper function
+  years <- extract_unique_years(dt, date_col_name)
   
   # Set seed for reproducibility
   if (!is.null(seed)) set.seed(seed)
   
   # Sample years
-  sampled <- sample(x = years, size = n_years, replace = TRUE, ...)
+  sampled_years <- sample(x = years, size = n_years, replace = TRUE, ...)
   new_years <- seq(from = start_year, length.out = n_years)
   
-  # Check if any original years exist in new_years
-  old_years <- new_years %in% years
-  
-  # Generate the sampled data.table
-  samples_dt <- rbindlist(lapply(seq_along(sampled), function(i) {
-    if(old_years[i]) {
-      subset_dt <- dt[year(dt[[date_col_name]]) == new_years[i]]
-    } else {
-      subset_dt <- dt[year(dt[[date_col_name]]) == sampled[i]]  
-    }
-    year(subset_dt[[date_col_name]]) <- new_years[i] 
-    subset_dt 
-  }), use.names = TRUE, fill = TRUE)
+  # Generate the sampled data.table using the helper function
+  samples_dt <- sample_and_adjust_years(dt, sampled_years, new_years, date_col_name)
   
   return(samples_dt)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
